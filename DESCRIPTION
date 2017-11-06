@@ -1,0 +1,19 @@
+Package: mboBench
+Type: Package
+Title: Benchmark functions for MBO
+Version: 0.1.0
+Authors@R: c(
+    person("Jakob", "Richter", NULL, "jakob1richter@gmail.com", role = c("cre", "aut"))
+Description: Benchmark functions for MBO
+License: GPL-2
+Encoding: UTF-8
+LazyData: true
+Depends:
+    data.table,
+    smoof,
+    ParamHelpers
+Imports:
+    backports (>= 1.1.1),
+    BBmisc,
+    checkmate (>= 1.8.4),
+    R6
