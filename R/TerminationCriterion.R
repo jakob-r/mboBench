@@ -31,6 +31,6 @@ TerminationCriterion = R6Class(
   ),
 
   active = list(
-    formals = names(formals(self$fun))
+    formals = function() names(formals(self$fun))
   )
 )

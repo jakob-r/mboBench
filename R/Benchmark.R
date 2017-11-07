@@ -34,29 +34,27 @@ Benchmark = R6Class(
     },
 
     # public methods
-    public = list(
-      getInitialDesign = function(i) {
-        if (!is.null(private$initial.designs)) {
-          if (i <= length(private$initial.designs)) {
-            return(private.initial.designs[[i]])
-          } else {
-            stopf("An initial.design for index %i is not provided.", i)
-          }
+    getInitialDesign = function(i) {
+      if (!is.null(private$initial.designs)) {
+        if (i <= length(private$initial.designs)) {
+          return(private.initial.designs[[i]])
         } else {
-          old.seed = .Random.seed
-          set.seed(i)
-          on.exit({ .Random.seed <<- old.seed })
-          res = private$design.generator()
-          return(res)
+          stopf("An initial.design for index %i is not provided.", i)
         }
+      } else {
+        old.seed = .Random.seed
+        set.seed(i)
+        on.exit({ .Random.seed <<- old.seed })
+        res = private$design.generator()
+        return(res)
       }
-    ),
+    }
+  ),
 
-    private = list(
-      initial.designs = NULL,
-      design.generator = function() {
-        generateDesign(n = self$initial.design.n, par.set = getParamSet(self$smoof.fun), fun = lhs::maximinLHS())
-      }
-    )
+  private = list(
+    initial.designs = NULL,
+    design.generator = function() {
+      generateDesign(n = self$initial.design.n, par.set = getParamSet(self$smoof.fun), fun = lhs::maximinLHS())
+    }
   )
 )
