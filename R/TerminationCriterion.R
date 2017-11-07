@@ -8,10 +8,10 @@ TerminationCriterion = R6Class(
     id = NULL,
 
     # constructor
-    initialize = function(fun, vars = list()) {
+    initialize = function(id, fun, vars = list()) {
       self$id = assertCharacter(id)
       self$fun = assertFunction(fun, args = "...")
-      assertSubset(self$formals, c("evals", "iteration", "time.used", "exec.time.used", "best.y.value"))
+      assertSubset(self$formals, c("evals", "iteration", "time.used", "exec.time.used", "best.y.value", "..."))
       self$vars = assertList(vars)
     },
 
@@ -22,7 +22,7 @@ TerminationCriterion = R6Class(
         evals = getOptPathLength(opt.path),
         iteration = mlrMBO:::getOptStateLoop(opt.state),
         time.used = as.numeric(mlrMBO:::getOptStateTimeUsed(opt.state), units = "secs"),
-        exec.time.used = sum(mlrMBO:::getOptPathExecTimes(opt.path), na.rm = TRUE),
+        exec.time.used = sum(getOptPathExecTimes(opt.path), na.rm = TRUE),
         best.y.value = getOptPathEl(opt.path, getOptPathBestIndex((opt.path)))$y
       )
       res = do.call(self$fun, args)
