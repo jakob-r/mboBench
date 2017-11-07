@@ -17,7 +17,7 @@ generateSimpleBenchmark = function(smoof.fun) {
   initial.design.n = 4 * d
 
   # calculate how many evaluations we should allow
-  max.evals = 20 * d
+  max.evals = 20 * sqrt(d)
   x = random.design$y
   if (!shouldBeMinimized(smoof.fun)) {
     x = -x
@@ -26,8 +26,8 @@ generateSimpleBenchmark = function(smoof.fun) {
   x = x - mean(x)
   # a skew < 0 means a hard minimization problem, because just a few values are close to the minimum
   skew = 1/n * sum(x ^ 3) / (1/(n-1) * sum(x ^ 2)) ^ (3/2)
-  skew.double = 2 * sqrt(2) / 5 # skewness of a triangle a = 0, b = 1 , c = 1
-  max.evals = round(max.evals * 2^-(skew/skew.double))
+  #skew.double = 2 * sqrt(2) / 5 # skewness of a triangle a = 0, b = 1 , c = 1
+  max.evals = round(max.evals * 2 ^ (2 * tanh(-skew)))
   max.evals = max.evals + initial.design.n
   termination.evals = TerminationEvals$new(max.evals = max.evals)
 
@@ -44,8 +44,9 @@ generateSimpleBenchmark = function(smoof.fun) {
 }
 
 if (FALSE) {
-  smoof.fun = makeAckleyFunction(4)
+  smoof.fun = makeSphereFunction(2)
   bench = generateSimpleBenchmark(smoof.fun)
+  bench$termination.criterions[[1]]$vars
   library(mlrMBO)
   ctrl = makeMBOControl()
   ctrl = setMBOControlTermination(ctrl, more.termination.conds = bench$mlrmbo.termination.criterions)

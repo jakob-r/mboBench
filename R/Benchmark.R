@@ -57,6 +57,14 @@ Benchmark = R6Class(
         res = private$design.generator()
         return(res)
       }
+    },
+
+    # just an idea. we can also use smoof wrappers. anyway iy has to be a smoof function again.
+    fun.logged = function(...) {
+      x = as.list(...)
+      y = self$smoof.fun(...)
+      private$opt.path$add(x = x, y = y)
+      return(y)
     }
   ),
 
@@ -69,6 +77,7 @@ Benchmark = R6Class(
 
   private = list(
     initial.designs = NULL,
+    opt.path = NULL,
     design.generator = function() {
       generateDesign(n = self$initial.design.n, par.set = getParamSet(self$smoof.fun), fun = lhs::maximinLHS)
     }
