@@ -31,6 +31,8 @@ generateSimpleBenchmark = function(smoof.fun) {
   max.evals = max.evals + initial.design.n
   termination.evals = TerminationEvals$new(max.evals = max.evals)
 
+  termination.value = TerminationValue$new(best.y.value = getGlobalOptimum(smoof.fun)$value, minimization = shouldBeMinimized(smoof.fun), tol = 1e-10)
+
   tags = c("simple.benchmark", getTags(smoof.fun))
 
   Benchmark$new(

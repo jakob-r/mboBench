@@ -27,3 +27,28 @@ TerminationEvals = R6Class(
     }
   )
 )
+
+TerminationValue = R6Class(
+  "TerminationValue",
+  inherit = TerminationCriterion,
+  public = list(
+    initialize = function(best.y.value, minimization = TRUE, tol = 0) {
+      super$initialize(
+        id = "best.y.value",
+        fun = function(best.y.value, ...) {
+          if (self$vars$minimization) {
+            term = best.y.value + tol >= self$vars$best.y.value
+          } else {
+            term = best.y.value - tol <= self$vars$best.y.value
+          }
+          c(list(...), best.y.value = best.y.value, term = term, origin = class(self)[1])
+        },
+        vars = list(
+          best.y.value = assertNumeric(max.evals, na.ok = FALSE),
+          minimization = assertFlag(minimization),
+          tol = assertNumeric(tol, na.ok = FALSE)
+        )
+      )
+    }
+  )
+)
