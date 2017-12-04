@@ -101,12 +101,11 @@ Benchmark = R6Class(
     dim = function() getNumberOfParameters(self$smoof.fun),
     par.set = function() getParamSet(self$smoof.fun),
     mlrmbo.termination.criterions = function() lapply(self$termination.criterions, function(z) z$mlrmbo.term),
-    x.ids = getXNames(self$smoof.fun),
-    y.ids = getYNames(self$dim)
+    x.ids = function() getXNames(self$smoof.fun),
+    y.ids = function() getYNames(self$dim)
   ),
 
   private = list(
-    initial.designs = NULL,
     opt.path = NULL,
     initial.design.n = NULL,
     initial.designs = list()
