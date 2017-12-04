@@ -100,7 +100,7 @@ Benchmark = R6Class(
     minimize = function() shouldBeMinimized(self$smoof.fun),
     dim = function() getNumberOfParameters(self$smoof.fun),
     par.set = function() getParamSet(self$smoof.fun),
-    mlrmbo.termination.criterions = function() lapply(self$termination.criterions, function(z) z$mlrmbo.term),
+    mlrmbo.termination.criterions = function() map(self$termination.criterions, "mlrmbo.term"),
     x.ids = function() getXNames(self$smoof.fun),
     y.ids = function() getYNames(self$dim)
   ),

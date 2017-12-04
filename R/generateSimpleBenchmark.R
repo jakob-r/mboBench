@@ -42,7 +42,7 @@ generateSimpleBenchmark = function(smoof.fun) {
   Benchmark$new(
     id = paste0("simple.", getID(smoof.fun)),
     smoof.fun = smoof.fun,
-    termination.criterions = list(termination.evals),
+    termination.criterions = list(evals = termination.evals, value = termination.value),
     threasholds = threasholds,
     initial.design.n = initial.design.n,
     tags = tags,

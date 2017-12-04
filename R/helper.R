@@ -21,3 +21,4 @@ getXNames.smoof_function = function(x) {
 getXNames.Benchmark = function(x) {
   x$x.ids
 }
+
