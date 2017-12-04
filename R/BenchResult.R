@@ -36,7 +36,7 @@ BenchResult = R6Class(
       self$values = assertList(values, null.ok = TRUE)
       self$benchmark = benchmark
       self$op.dt = op.dt
-      self$repl = repl %??% id
+      self$repl = repl %??% 1
     }
 
     # public methods
