@@ -1,3 +1,4 @@
+#' @export
 Benchmark = R6Class(
   classname = "Benchmark",
   public = list(
@@ -8,9 +9,8 @@ Benchmark = R6Class(
     termination.criterions = NULL,
     expensive = NULL,
     threasholds = NULL,
-    initial.design.n = NULL,
     tags = NULL,
-    values = NULL,
+    values = NULL, # stores additional values in a list
 
     # constructor
     initialize = function(id = NULL, smoof.fun, termination.criterions, expensive = FALSE, threasholds, initial.designs = NULL, initial.design.n = NULL, tags = character(0L), values = NULL) {
@@ -27,15 +27,18 @@ Benchmark = R6Class(
 
       self$threasholds = assertNumeric(threasholds, any.missing = FALSE)
 
-      assert_true(xor(is.null(initial.designs), is.null(initial.design.n)))
+      assertTRUE(xor(is.null(initial.designs), is.null(initial.design.n)))
       private$initial.designs = assertList(initial.designs, "data.frame", null.ok = TRUE)
+
       if (!is.null(initial.designs)) {
         init.design.lenghts = unique(sapply(initial.designs, nrow))
         if (length(unique(init.design.lenghts)) != 1) {
           stopf("The initial designs all have to be of the same length and not: %s", convertToShortString(init.design.lenghts, clip.len = 64))
+        } else {
+          initial.design.n = init.design.lenghts[1]
         }
       }
-      self$initial.design.n = assertInt(initial.design.n, null.ok = TRUE, lower = 0)
+      private$initial.design.n = assertInt(initial.design.n, null.ok = TRUE, lower = 0)
 
       self$tags = assertCharacter(tags, any.missing = FALSE, null.ok = TRUE)
 
@@ -46,7 +49,7 @@ Benchmark = R6Class(
     getInitialDesign = function(i) {
       if (!is.null(private$initial.designs)) {
         if (i <= length(private$initial.designs)) {
-          return(private.initial.designs[[i]])
+          return(private$initial.designs[[i]])
         } else {
           stopf("An initial.design for index %i is not provided.", i)
         }
@@ -54,7 +57,8 @@ Benchmark = R6Class(
         old.seed = .Random.seed
         set.seed(i)
         on.exit({ .Random.seed <<- old.seed })
-        res = private$design.generator()
+        res = generateDesign(n = private$initial.design.n, par.set = getParamSet(self$smoof.fun), fun = lhs::maximinLHS)
+        private$initial.designs[[i]] = res
         return(res)
       }
     },
@@ -65,6 +69,30 @@ Benchmark = R6Class(
       y = self$smoof.fun(...)
       private$opt.path$add(x = x, y = y)
       return(y)
+    },
+
+    getInitialDesignEvaluated = function(i, calculate = TRUE) {
+      if (isNoisy(self$smoof.fun)) {
+        stop("Not supported for noisy functions.")
+      }
+      self$evaluateDesigns(i)
+      design = self$getInitialDesign(i)
+    },
+
+    evaluateDesigns = function(x = 1:10) {
+      assertIntegerish(x, lower = 1L)
+      designs = lapply(x, getInitialDesign)
+      designs = parallelMap(
+        function(design) {
+          if (all(self$y.ids %in% colnames(design))) {
+            return(design)
+          } else {
+            ys = evalDesign(design, self$smoof.fun)
+            return(cbind(design, ys))
+          }
+        }, design = designs, level = "mboBench.evalDesign"
+      )
+      private$initial.designs[x] = designs
     }
   ),
 
@@ -72,14 +100,15 @@ Benchmark = R6Class(
     minimize = function() shouldBeMinimized(self$smoof.fun),
     dim = function() getNumberOfParameters(self$smoof.fun),
     par.set = function() getParamSet(self$smoof.fun),
-    mlrmbo.termination.criterions = function() lapply(self$termination.criterions, function(z) z$mlrmbo.term)
+    mlrmbo.termination.criterions = function() lapply(self$termination.criterions, function(z) z$mlrmbo.term),
+    x.ids = getXNames(self$smoof.fun),
+    y.ids = getYNames(self$dim)
   ),
 
   private = list(
     initial.designs = NULL,
     opt.path = NULL,
-    design.generator = function() {
-      generateDesign(n = self$initial.design.n, par.set = getParamSet(self$smoof.fun), fun = lhs::maximinLHS)
-    }
+    initial.design.n = NULL,
+    initial.designs = list()
   )
 )

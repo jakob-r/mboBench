@@ -1,12 +1,16 @@
+#' @export
 generateSimpleBenchmark = function(smoof.fun) {
   old.seed = .Random.seed
   set.seed(1)
   on.exit({ .Random.seed <<- old.seed })
 
+  if (!isSingleobjective(smoof.fun)) {
+    stop ("Anything else then single objective not supported yet.")
+  }
   d = getNumberOfParameters(smoof.fun)
   random.design = generateRandomDesign(n = 500*d, par.set = getParamSet(smoof.fun))
-  random.design$y = apply(random.design, 1, smoof.fun)
-  threasholds = quantile(random.design$y, seq(0, 1, by = 0.1))
+  ys = evalDesign(random.design, smoof.fun)[,1]
+  threasholds = quantile(ys, seq(0, 1, by = 0.1))
   if (shouldBeMinimized(smoof.fun)) {
     threasholds = rev(threasholds)
   }
@@ -27,8 +31,8 @@ generateSimpleBenchmark = function(smoof.fun) {
   # a skew < 0 means a hard minimization problem, because just a few values are close to the minimum
   skew = 1/n * sum(x ^ 3) / (1/(n-1) * sum(x ^ 2)) ^ (3/2)
   #skew.double = 2 * sqrt(2) / 5 # skewness of a triangle a = 0, b = 1 , c = 1
-  max.evals = round(max.evals * 2 ^ (2 * tanh(-skew)))
-  max.evals = max.evals + initial.design.n
+  guess.max.evals = round(max.evals * 2 ^ (2 * tanh(-skew)))
+  max.evals = initial.design.n + max(min(guess.max.evals, 10 * max.evals), max.evals / 10)
   termination.evals = TerminationEvals$new(max.evals = max.evals)
 
   termination.value = TerminationValue$new(best.y.value = getGlobalOptimum(smoof.fun)$value, minimization = shouldBeMinimized(smoof.fun), tol = 1e-10)

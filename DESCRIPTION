@@ -15,6 +15,7 @@ Depends:
     ParamHelpers
 Imports:
     backports (>= 1.1.1),
+    purrr,
     BBmisc,
     checkmate (>= 1.8.4),
     R6
