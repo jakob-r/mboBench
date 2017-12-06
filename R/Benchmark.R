@@ -31,6 +31,7 @@ Benchmark = R6Class(
       private$initial.designs = assertList(initial.designs, "data.frame", null.ok = TRUE)
 
       if (!is.null(initial.designs)) {
+        private$initial.designs.provided = TRUE
         init.design.lenghts = unique(sapply(initial.designs, nrow))
         if (length(unique(init.design.lenghts)) != 1) {
           stopf("The initial designs all have to be of the same length and not: %s", convertToShortString(init.design.lenghts, clip.len = 64))
@@ -47,12 +48,10 @@ Benchmark = R6Class(
 
     # public methods
     getInitialDesign = function(i) {
-      if (!is.null(private$initial.designs)) {
-        if (i <= length(private$initial.designs)) {
-          return(private$initial.designs[[i]])
-        } else {
-          stopf("An initial.design for index %i is not provided.", i)
-        }
+      if (!is.null(private$initial.designs[i][[1]])) {
+        return(private$initial.designs[[i]])
+      } else if (private$initial.designs.provided) {
+        stopf("An initial.design for index %i is not provided.", i)
       } else {
         old.seed = .Random.seed
         set.seed(i)
@@ -76,12 +75,12 @@ Benchmark = R6Class(
         stop("Not supported for noisy functions.")
       }
       self$evaluateDesigns(i)
-      design = self$getInitialDesign(i)
+      self$getInitialDesign(i)
     },
 
     evaluateDesigns = function(x = 1:10) {
       assertIntegerish(x, lower = 1L)
-      designs = lapply(x, getInitialDesign)
+      designs = lapply(x, self$getInitialDesign)
       designs = parallelMap(
         function(design) {
           if (all(self$y.ids %in% colnames(design))) {
@@ -111,6 +110,7 @@ Benchmark = R6Class(
   private = list(
     opt.path = NULL,
     initial.design.n = NULL,
-    initial.designs = list()
+    initial.designs = list(),
+    initial.designs.provided = FALSE
   )
 )
