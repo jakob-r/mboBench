@@ -10,19 +10,26 @@ generateSimpleBenchmark = function(smoof.fun) {
   d = getNumberOfParameters(smoof.fun)
   random.design = generateRandomDesign(n = 500*d, par.set = getParamSet(smoof.fun))
   ys = evalDesign(random.design, smoof.fun)[,1]
+  assertNumeric(ys, any.missing = FALSE, len = nrow(random.design))
   threasholds = quantile(ys, seq(0, 1, by = 0.1))
   if (shouldBeMinimized(smoof.fun)) {
     threasholds = rev(threasholds)
   }
-  if (!is.null(getGlobalOptimum(smoof.fun)$value)) {
+  best.y.value = getGlobalOptimum(smoof.fun)$value 
+  if (!is.null(best.y.value)) {
     threasholds = c(threasholds, opt = getGlobalOptimum(smoof.fun)$value)
+    termination.criterions = list(
+      termination.value = TerminationValue$new(best.y.value = best.y.value, minimization = shouldBeMinimized(smoof.fun), tol = 1e-10)
+      )
+  } else {
+    termination.criterions = list()
   }
 
   initial.design.n = 4 * d
 
   # calculate how many evaluations we should allow
   max.evals = 20 * sqrt(d)
-  x = random.design$y
+  x = ys
   if (!shouldBeMinimized(smoof.fun)) {
     x = -x
   }
@@ -31,22 +38,22 @@ generateSimpleBenchmark = function(smoof.fun) {
   # a skew < 0 means a hard minimization problem, because just a few values are close to the minimum
   skew = 1/n * sum(x ^ 3) / (1/(n-1) * sum(x ^ 2)) ^ (3/2)
   #skew.double = 2 * sqrt(2) / 5 # skewness of a triangle a = 0, b = 1 , c = 1
-  guess.max.evals = round(max.evals * 2 ^ (2 * tanh(-skew)))
-  max.evals = initial.design.n + max(min(guess.max.evals, 10 * max.evals), max.evals / 10)
+  guess.max.evals = max.evals * 2 ^ (2 * tanh(-skew))
+  max.evals = round(initial.design.n + max(min(guess.max.evals, 10 * max.evals), max.evals / 10))
   termination.evals = TerminationEvals$new(max.evals = max.evals)
-
-  termination.value = TerminationValue$new(best.y.value = getGlobalOptimum(smoof.fun)$value, minimization = shouldBeMinimized(smoof.fun), tol = 1e-10)
 
   tags = c("simple.benchmark", getTags(smoof.fun))
 
+  id = getID(smoof.fun) %??% stri_replace_all_regex(str = getName(smoof.fun), pattern = "[^a-zA-Z1-9]", replacement = "_")
+
   Benchmark$new(
-    id = paste0("simple.", getID(smoof.fun)),
+    id = paste0("simple.", id),
     smoof.fun = smoof.fun,
-    termination.criterions = list(evals = termination.evals, value = termination.value),
+    termination.criterions = c(list(evals = termination.evals), termination.criterions),
     threasholds = threasholds,
     initial.design.n = initial.design.n,
     tags = tags,
-    values = list(random.design = random.design, skew = skew))
+    values = list(skew = skew))
 }
 
 if (FALSE) {

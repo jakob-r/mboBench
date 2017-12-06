@@ -1,7 +1,7 @@
 #' @export
 getYNames = function(d) {
   if (d == 1){
-    return(y)
+    return("y")
   } else {
     return(paste("y", seq_len(d), sep = "_"))
   }

@@ -44,9 +44,9 @@ TerminationValue = R6Class(
           c(list(...), best.y.value = best.y.value, term = term, origin = class(self)[1])
         },
         vars = list(
-          best.y.value = assertNumeric(max.evals, na.ok = FALSE),
+          best.y.value = assertNumber(best.y.value, na.ok = FALSE),
           minimization = assertFlag(minimization),
-          tol = assertNumeric(tol, na.ok = FALSE)
+          tol = assertNumber(tol, na.ok = FALSE)
         )
       )
     }
