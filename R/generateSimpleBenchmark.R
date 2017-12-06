@@ -44,8 +44,11 @@ generateSimpleBenchmark = function(smoof.fun) {
 
   tags = c("simple.benchmark", getTags(smoof.fun))
 
-  id = getID(smoof.fun) %??% stri_replace_all_regex(str = getName(smoof.fun), pattern = "[^a-zA-Z1-9]", replacement = "_")
-
+  id = getID(smoof.fun)
+  if (is.na(id)) {
+    id = stri_replace_all_regex(str = smoof::getName(smoof.fun), pattern = "[^a-zA-Z1-9]", replacement = "_")
+  }
+  
   Benchmark$new(
     id = paste0("simple.", id),
     smoof.fun = smoof.fun,
