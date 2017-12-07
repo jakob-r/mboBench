@@ -1,4 +1,5 @@
 #' @title BenchResult Class
+#' @format \code{\link{R6Class}} object
 #'
 #' @description
 #' BenchResult Class
@@ -14,6 +15,7 @@ BenchResult = R6Class(
     op.dt = NULL,
     values = NULL,
     repl = NULL,
+    executed = FALSE,
 
     # constructor
     initialize = function(id = NULL, benchmark, op.dt = NULL, opt.path = NULL, values = NULL, repl = NULL) {
@@ -23,7 +25,7 @@ BenchResult = R6Class(
       assertInt(repl, null.ok = TRUE)
       
       assertDataTable(op.dt, null.ok = TRUE)
-      assertClass(opt.path, null.ok = TRUE)
+      assertClass(opt.path, "OptPath", null.ok = TRUE)
       assertTRUE(xor(is.null(op.dt), is.null(opt.path)))
 
       if (!is.null(opt.path)) {
@@ -42,8 +44,13 @@ BenchResult = R6Class(
       self$benchmark = benchmark
       self$op.dt = op.dt
       self$repl = repl %??% 1
-    }
+    },
 
     # public methods
+    setExecutorValues = function(fixed.args, args, values) {
+      self$executed = TRUE
+      assertList(values, names = "named")
+      self$values$executor = list(fixed.args = fixed.args, args = args, values = values)
+    }
   )
 )

@@ -10,6 +10,7 @@
 #' @importFrom stats quantile
 #' @importFrom stats runif
 #' @importFrom purrr map
+#' @importFrom digest sha1
 
 .onAttach = function(libname, pkgname) {
   parallelRegisterLevels(package = "mboBench", levels = c("evalX", "evalDesign"))

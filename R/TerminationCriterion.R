@@ -1,4 +1,5 @@
 #' @title TerminationCriterion Class
+#' @format \code{\link{R6Class}} object
 #'
 #' @description
 #' TerminationCriterion Class

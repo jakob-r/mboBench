@@ -1,4 +1,5 @@
 #' @title Benchmark Class
+#' @format \code{\link{R6Class}} object
 #'
 #' @description
 #' Benchmark Class
@@ -108,7 +109,7 @@ Benchmark = R6Class(
     par.set = function() getParamSet(self$smoof.fun),
     mlrmbo.termination.criterions = function() map(self$termination.criterions, "mlrmbo.term"),
     x.ids = function() getXNames(self$smoof.fun),
-    y.ids = function() getYNames(self$dim),
+    y.ids = function() getYNames(getNumberOfObjectives(self$smoof.fun)),
     resources.walltime = function() 1,
     resources.memory = function() 256,
     resources.cpus = function() 1

@@ -1,4 +1,5 @@
 #' @title BenchmarkExpensive Class
+#' @format \code{\link{R6Class}} object
 #'
 #' @description
 #' BenchmarkExpensive Class

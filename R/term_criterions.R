@@ -1,4 +1,5 @@
 #' @title TerminationIteration Class
+#' @format \code{\link{R6Class}} object
 #'
 #' @description
 #' TerminationIteration Class
@@ -21,6 +22,7 @@ TerminationIteration = R6Class(
 )
 
 #' @title TerminationEvals Class
+#' @format \code{\link{R6Class}} object
 #'
 #' @description
 #' TerminationEvals Class
@@ -46,6 +48,7 @@ TerminationEvals = R6Class(
 
 
 #' @title TerminationValue Class
+#' @format \code{\link{R6Class}} object
 #'
 #' @description
 #' TerminationValue Class
