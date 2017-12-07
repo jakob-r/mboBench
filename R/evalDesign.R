@@ -5,8 +5,6 @@
 # out
 # y values as vector with exec.times as vector attribute
 
-#' @importFrom purrr map
-#' @export
 evalDesign = function(design, smoof.fun) {
   assertDataFrame(design)
   assertClass(smoof.fun, "smoof_function")

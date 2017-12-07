@@ -1,3 +1,11 @@
+#' @title TerminationCriterion Class
+#'
+#' @description
+#' TerminationCriterion Class
+#' 
+#' @family TerminationCriterion
+#' 
+#' @export
 TerminationCriterion = R6Class(
   "TerminationCriterion",
   public = list(

@@ -1,3 +1,10 @@
+#' @title Benchmark Class
+#'
+#' @description
+#' Benchmark Class
+#' 
+#' @family Benchmark
+#' 
 #' @export
 Benchmark = R6Class(
   classname = "Benchmark",
@@ -53,7 +60,7 @@ Benchmark = R6Class(
       } else if (private$initial.designs.provided) {
         stopf("An initial.design for index %i is not provided.", i)
       } else {
-        old.seed = .Random.seed
+        old.seed = getRandomSeed()
         set.seed(i)
         on.exit({ .Random.seed <<- old.seed })
         res = generateDesign(n = private$initial.design.n, par.set = getParamSet(self$smoof.fun), fun = lhs::maximinLHS)

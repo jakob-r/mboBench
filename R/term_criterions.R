@@ -1,3 +1,11 @@
+#' @title TerminationIteration Class
+#'
+#' @description
+#' TerminationIteration Class
+#' 
+#' @family TerminationCriterion
+#' 
+#' @export
 TerminationIteration = R6Class(
   "TerminationIteration",
   inherit = TerminationCriterion,
@@ -12,6 +20,14 @@ TerminationIteration = R6Class(
   )
 )
 
+#' @title TerminationEvals Class
+#'
+#' @description
+#' TerminationEvals Class
+#' 
+#' @family TerminationCriterion
+#' 
+#' @export
 TerminationEvals = R6Class(
   "TerminationEvals",
   inherit = TerminationCriterion,
@@ -28,6 +44,15 @@ TerminationEvals = R6Class(
   )
 )
 
+
+#' @title TerminationValue Class
+#'
+#' @description
+#' TerminationValue Class
+#' 
+#' @family TerminationCriterion
+#' 
+#' @export
 TerminationValue = R6Class(
   "TerminationValue",
   inherit = TerminationCriterion,

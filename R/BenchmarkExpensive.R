@@ -1,3 +1,10 @@
+#' @title BenchmarkExpensive Class
+#'
+#' @description
+#' BenchmarkExpensive Class
+#' 
+#' @family Benchmark
+#' 
 #' @export
 BenchmarkExpensive = R6Class(
   classname = "BenchmarkExpensive",

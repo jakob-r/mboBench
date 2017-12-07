@@ -1,3 +1,8 @@
+#' @title BenchResult Class
+#'
+#' @description
+#' BenchResult Class
+#' 
 #' @export
 BenchResult = R6Class(
   classname = "BenchResult",

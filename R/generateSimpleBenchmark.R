@@ -1,6 +1,14 @@
+#' @title Generates a simple Benchmark
+#'
+#' @description
+#' Generates a simple Benchmark from simple inexpensive single objective functions.
+#'
+#' @param smoof.fun [\code{smoof_function}]\cr
+#'   Single objective smoof function.
+#' @return \code{\link{Benchmark}}
 #' @export
 generateSimpleBenchmark = function(smoof.fun) {
-  old.seed = .Random.seed
+  old.seed = getRandomSeed()
   set.seed(1)
   on.exit({ .Random.seed <<- old.seed })
 
