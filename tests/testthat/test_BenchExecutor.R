@@ -13,7 +13,7 @@ test_that("BenchExecutor and BenchResult works", {
 
   bench.function(benchmark, 1, 1)
 
-  executor = BenchExecutor$new(id = "test.rs", executor.fun = bench.function, fixed.args = list(paramA = 10))
+  executor = BenchExecutor$new(id = "test.rs", executor.fun = bench.function, fixed.args = list(paramA = 10), benchmark = benchmark)
   res = executor$execute(paramB = 20)
   expect_class(res, "BenchResult")
   expect_true(res$values$executor$fixed.args$paramA == 10)

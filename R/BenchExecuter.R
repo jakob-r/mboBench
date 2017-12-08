@@ -19,9 +19,9 @@ BenchExecutor = R6Class(
     resources.walltime.multiplicator = NULL,
 
     # constructor
-    initialize = function(id = NULL, executor.fun, fixed.args = list(), resources.cpus.multiplicator = 1, resources.memory.multiplicator = 1, resources.walltime.multiplicator = 1) {
+    initialize = function(id = NULL, benchmark, executor.fun, fixed.args = list(), resources.cpus.multiplicator = 1, resources.memory.multiplicator = 1, resources.walltime.multiplicator = 1) {
 
-      self$id = assertString(id)  
+      self$id = assertString(id) 
       self$fixed.args = assertList(fixed.args, names = "named")
       self$benchmark = assertClass(benchmark, "Benchmark")
       self$executor.fun = assertFunction(executor.fun, args = "benchmark")
