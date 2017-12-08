@@ -13,5 +13,5 @@
 #' @importFrom digest sha1
 
 .onAttach = function(libname, pkgname) {
-  parallelRegisterLevels(package = "mboBench", levels = c("evalX", "evalDesign"))
+  parallelRegisterLevels(package = "mboBench", levels = c("evalX"))
 }

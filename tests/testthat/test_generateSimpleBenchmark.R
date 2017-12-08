@@ -6,7 +6,7 @@ test_that("generateSimpleBenchmark works", {
   des = benchmark$getInitialDesign(1)
   expect_data_frame(des)
 
-  benchmark$evaluateDesigns(2)
+  benchmark$evaluateDesign(2)
   des = benchmark$getInitialDesign(2)
   expect_data_frame(des)
 

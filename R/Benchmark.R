@@ -82,25 +82,23 @@ Benchmark = R6Class(
       if (isNoisy(self$smoof.fun)) {
         stop("Not supported for noisy functions.")
       }
-      self$evaluateDesigns(i)
+      self$evaluateDesign(i)
       self$getInitialDesign(i)
     },
 
-    evaluateDesigns = function(x = 1:10) {
-      assertIntegerish(x, lower = 1L)
-      designs = lapply(x, self$getInitialDesign)
-      designs = parallelMap(
-        function(design) {
-          if (all(self$y.ids %in% colnames(design))) {
-            return(design)
-          } else {
-            ys = evalDesign(design, self$smoof.fun)
-            return(cbind(design, ys))
-          }
-        }, design = designs, level = "mboBench.evalDesign"
-      )
-      private$initial.designs[x] = designs
+    evaluateDesign = function(i) {
+      assertInt(i ,lower = 1L)
+      design = self$getInitialDesign(i)
+      if (all(self$y.ids %in% colnames(design))) {
+        invisible(design)
+      } else {
+        ys = evalDesign(design, self$smoof.fun)
+        design = cbind(design, ys)
+        private$initial.designs[[i]] = design
+        invisible(design)
+      }
     }
+
   ),
 
   active = list(
