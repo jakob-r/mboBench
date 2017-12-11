@@ -12,18 +12,16 @@ BenchExecutor = R6Class(
     # member variables
     id = NULL,
     fixed.args = NULL,
-    benchmark = NULL,
     executor.fun = NULL,
     resources.cpus.multiplicator = NULL,
     resources.memory.multiplicator = NULL,
     resources.walltime.multiplicator = NULL,
 
     # constructor
-    initialize = function(id = NULL, benchmark, executor.fun, fixed.args = list(), resources.cpus.multiplicator = 1, resources.memory.multiplicator = 1, resources.walltime.multiplicator = 1) {
+    initialize = function(id = NULL, executor.fun, fixed.args = list(), resources.cpus.multiplicator = 1, resources.memory.multiplicator = 1, resources.walltime.multiplicator = 1) {
 
       self$id = assertString(id) 
       self$fixed.args = assertList(fixed.args, names = "named")
-      self$benchmark = assertClass(benchmark, "Benchmark")
       self$executor.fun = assertFunction(executor.fun, args = "benchmark")
       self$resources.cpus.multiplicator = assertNumber(resources.cpus.multiplicator, lower = 1)
       self$resources.memory.multiplicator = assertNumber(resources.memory.multiplicator, lower = 1)
@@ -31,12 +29,12 @@ BenchExecutor = R6Class(
 
     },
 
-    execute = function(...) {
+    execute = function(benchmark, ...) {
       dots = list(...)
       assertList(dots, names = "named")
       assertTRUE(length(intersect(names(dots), names(self$fixed.args))) == 0)
-      args = c(list(benchmark = self$benchmark), self$fixed.args, dots)
-      res = do.call(self$executor.fun, args)
+      args = c(self$fixed.args, dots)
+      res = do.call(self$executor.fun, c(list(benchmark = benchmark), args))
       assertClass(res, "BenchResult")
       res$setExecutorValues(fixed.args = self$fixed.args, args = args, values = list(executor.fun.hash = sha1(self$executor.fun)))
       return(res)

@@ -2,10 +2,10 @@ context("BenchExecutor")
 
 test_that("BenchExecutor and BenchResult works", {
   benchmark = generateSimpleBenchmark(makeBraninFunction())
-  benchmark2 = generateSimpleBenchmark(makeBraninFunction())
-  benchmark3 = generateSimpleBenchmark(makeSwiler2014Function())
-  expect_equal(benchmark$hash, benchmark2$hash)
-  expect_true(benchmark$hash != benchmark3$hash)
+  benchmark2 = generateSimpleBenchmark(makeSwiler2014Function())
+  benchmark3 = generateSimpleBenchmark(makeBraninFunction())
+  expect_equal(benchmark$hash, benchmark3$hash)
+  expect_true(benchmark$hash != benchmark2$hash)
 
   bench.function = function(benchmark, paramA, paramB) {
     random.design = generateRandomDesign(n = paramA+paramB, par.set = getParamSet(benchmark$smoof.fun))
@@ -15,12 +15,18 @@ test_that("BenchExecutor and BenchResult works", {
     BenchResult$new(benchmark = benchmark, op.dt = op.dt)
   }
 
-  bench.function(benchmark, 1, 1)
-
-  executor = BenchExecutor$new(id = "test.rs", executor.fun = bench.function, fixed.args = list(paramA = 10), benchmark = benchmark)
-  res = executor$execute(paramB = 20)
+  res = bench.function(benchmark, 1, 1)
   expect_class(res, "BenchResult")
-  expect_true(res$values$executor$fixed.args$paramA == 10)
 
-  expect_equal(benchmark$hash, res$benchmark.hash)
+  bench.exec = BenchExecutor$new(id = "test.rs", executor.fun = bench.function, fixed.args = list(paramA = 10))
+  repls.bench1 = replicate(10, {
+    bench.exec$execute(benchmark, paramB = 20)
+  })
+  repls.bench2 = replicate(10, {
+    bench.exec$execute(benchmark2, paramB = 20)
+  })
+  expect_class(repls.bench1[[1]], "BenchResult")
+  expect_true(repls.bench1[[1]]$values$executor$fixed.args$paramA == 10)
+
+  expect_equal(benchmark$hash, repls.bench1[[1]]$benchmark.hash)
 })
