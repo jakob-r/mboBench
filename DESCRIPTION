@@ -22,7 +22,8 @@ Imports:
     parallelMap,
     purrr,
     R6,
-    stringi
+    stringi,
+    methods
 RoxygenNote: 6.0.1
 Suggests: testthat,
     covr

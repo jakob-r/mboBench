@@ -17,4 +17,6 @@ test_that("BenchExecutor and BenchResult works", {
   res = executor$execute(paramB = 20)
   expect_class(res, "BenchResult")
   expect_true(res$values$executor$fixed.args$paramA == 10)
+
+  expect_equal(benchmark$hash, res$benchmark.hash)
 })

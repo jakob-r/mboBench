@@ -110,7 +110,8 @@ Benchmark = R6Class(
     y.ids = function() getYNames(getNumberOfObjectives(self$smoof.fun)),
     resources.walltime = function() 1,
     resources.memory = function() 256,
-    resources.cpus = function() 1
+    resources.cpus = function() 1,
+    hash = function() pseudodigest(self)
   ),
 
   private = list(

@@ -19,5 +19,7 @@ test_that("Benchmark works", {
   des = benchmark$getInitialDesignEvaluated(10)
   expect_data_frame(des)
 
+  expect_character(benchmark$hash)
+
   benchmark$mlrmbo.termination.criterions
 })

@@ -11,7 +11,7 @@ BenchResult = R6Class(
 
     # member variables
     id = NULL,
-    benchmark = NULL,
+    benchmark.hash = NULL,
     op.dt = NULL,
     values = NULL,
     repl = NULL,
@@ -41,7 +41,7 @@ BenchResult = R6Class(
 
       self$id = id %??% benchmark$id
       self$values = assertList(values, null.ok = TRUE)
-      self$benchmark = benchmark
+      self$benchmark.hash = benchmark$hash
       self$op.dt = op.dt
       self$repl = repl %??% 1
     },

@@ -38,7 +38,7 @@ BenchExecutor = R6Class(
       args = c(list(benchmark = self$benchmark), self$fixed.args, dots)
       res = do.call(self$executor.fun, args)
       assertClass(res, "BenchResult")
-      res$setExecutorValues(fixed.args = self$fixed.args, args = args, values = list(executor.fun.sha1 = digest::sha1(self$executor.fun)))
+      res$setExecutorValues(fixed.args = self$fixed.args, args = args, values = list(executor.fun.hash = sha1(self$executor.fun)))
       return(res)
     }
   )
