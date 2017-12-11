@@ -2,13 +2,17 @@ context("BenchExecutor")
 
 test_that("BenchExecutor and BenchResult works", {
   benchmark = generateSimpleBenchmark(makeBraninFunction())
+  benchmark2 = generateSimpleBenchmark(makeBraninFunction())
+  benchmark3 = generateSimpleBenchmark(makeSwiler2014Function())
+  expect_equal(benchmark$hash, benchmark2$hash)
+  expect_true(benchmark$hash != benchmark3$hash)
 
   bench.function = function(benchmark, paramA, paramB) {
     random.design = generateRandomDesign(n = paramA+paramB, par.set = getParamSet(benchmark$smoof.fun))
     ys = evalDesign(random.design, benchmark$smoof.fun)[,1]
     op.dt = as.data.table(random.design)
     op.dt$y = ys
-    res = BenchResult$new(benchmark = benchmark, op.dt = op.dt)
+    BenchResult$new(benchmark = benchmark, op.dt = op.dt)
   }
 
   bench.function(benchmark, 1, 1)

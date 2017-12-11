@@ -32,15 +32,19 @@ pseudodigest = function(obj, digest.fun.name = "sha1") {
   digest.fun = getFunction(digest.fun.name)
   allowed = as.character(methods(digest.fun.name))
   allowed = stri_replace_first_fixed(allowed, pattern = paste0(digest.fun.name, "."), replacement = "")
-  deenv = function(x, level = 1) {
-    if (any(class(x) %in% setdiff(allowed, "list"))) {
-      res = digest.fun(x)
-    } else if (level <= 3) {
-      res = lapply(as.list(x), function(z) deenv(z, level + 1)) 
-    } else {
-      res = ""
-    }
-    return(res)
-  }
-  digest.fun(deenv(obj))
+  digestable = list(
+    id = obj$id,
+    y.ids = obj$y.ids,
+    x.ids = obj$x.ids,
+    par.set = unlist(obj$par.set),
+    dim = obj$dim,
+    minimize = obj$minimize,
+    values = obj$values,
+    tags = obj$tags,
+    threasholds = obj$threasholds,
+    expensive = obj$expensive,
+    termination.criterions = map(obj$termination.criterions, "vars"),
+    smoof.fun = obj$smoof.fun
+  )
+  digest.fun(digestable)
 }
