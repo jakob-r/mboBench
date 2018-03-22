@@ -44,7 +44,7 @@ pseudodigest = function(obj, digest.fun.name = "sha1") {
     threasholds = obj$threasholds,
     expensive = obj$expensive,
     termination.criterions = map(obj$termination.criterions, "vars"),
-    smoof.fun = obj$smoof.fun
+    smoof.fun = deparse(obj$smoof.fun)
   )
   digest.fun(digestable)
 }
