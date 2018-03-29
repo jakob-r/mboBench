@@ -16,12 +16,19 @@ generateSimpleBenchmark = function(smoof.fun) {
     stop ("Anything else then single objective not supported yet.")
   }
   d = getNumberOfParameters(smoof.fun)
+  initial.design.n = 4 * d
+
   random.design = generateRandomDesign(n = 500*d, par.set = getParamSet(smoof.fun))
   ys = evalDesign(random.design, smoof.fun)[,1]
   assertNumeric(ys, any.missing = FALSE, len = nrow(random.design))
-  threasholds = quantile(ys, seq(0, 1, by = 0.1))
   if (shouldBeMinimized(smoof.fun)) {
-    threasholds = rev(threasholds)
+    design.min = mean(aggregate(ys~floor(seq_along(ys) %% initial.design.n), FUN = min)[,2])
+    design.min = mean(ys<=design.min)
+    threasholds = quantile(ys, seq(from = design.min, to = 0, length.out = 10))
+  } else {
+    design.max = mean(aggregate(ys~floor(seq_along(ys) %% initial.design.n), FUN = max)[,2])
+    design.max = mean(ys>=design.max)
+    threasholds = quantile(ys, seq(from = design.max, to = 1, length.out = 10))
   }
   best.y.value = getGlobalOptimum(smoof.fun)$value 
   if (!is.null(best.y.value)) {
@@ -32,8 +39,6 @@ generateSimpleBenchmark = function(smoof.fun) {
   } else {
     termination.criterions = list()
   }
-
-  initial.design.n = 4 * d
 
   # calculate how many evaluations we should allow
   max.evals = 20 * sqrt(d)

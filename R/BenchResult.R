@@ -16,13 +16,17 @@ BenchResult = R6Class(
     values = NULL,
     repl = NULL,
     executed = FALSE,
+    algo.name = NULL,
+    algo.params = NULL,
 
     # constructor
-    initialize = function(id = NULL, benchmark, op.dt = NULL, opt.path = NULL, values = NULL, repl = NULL) {
+    initialize = function(id = NULL, benchmark, algo.name = NULL, algo.params = NULL, op.dt = NULL, opt.path = NULL, values = NULL, repl = NULL) {
 
       assertClass(benchmark, "Benchmark")
       assertCharacter(id, any.missing = FALSE, null.ok = TRUE)
       assertInt(repl, null.ok = TRUE)
+      assertString(algo.name, null.ok = TRUE)
+      assertList(algo.params, null.ok = TRUE)
       
       assertDataTable(op.dt, null.ok = TRUE)
       assertClass(opt.path, "OptPath", null.ok = TRUE)
@@ -44,6 +48,8 @@ BenchResult = R6Class(
       self$benchmark.hash = benchmark$hash
       self$op.dt = op.dt
       self$repl = repl %??% 1
+      self$algo.name = algo.name
+      self$algo.params = algo.params
     },
 
     # public methods

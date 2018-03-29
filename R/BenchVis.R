@@ -1,9 +1,23 @@
 BenchReplVis = function(res.list, benchmark) {
   assertList(res.list, "BenchResult")
   values = map(res.list, "values")
-  assert_true(all(sapply(tail(values, -1), all.equal, current = values[[1]])))
   assert_true(all(sapply(map_chr(res.list, "benchmark.hash"), all.equal, current = benchmark$hash)))
-  #lapply(seq_along(res.list), function(i) res.list$)
+  repls = map_int(res.list, "repl")
+  assert_true(!anyDuplicated(repls))
+  assert_true(all(sapply(map_chr(res.list, "benchmark.hash"), all.equal, current = benchmark$hash)))
+  res.dt = Map(cbind.data.frame, map(res.list, "op.dt"), repl = repls)
+  res.dt = rbindlist(res.dt)
+  threasholds = benchmark$threasholds
+  if (benchmark$minimize) {
+    res.dt[, y.dob := min(y), by = .(dob, repl)]
+    res.dt[, y.dob.c := cummin(y.dob), by = .(repl)]
+    res.dt[, y.th := cut(y.dob.c, c(Inf, threasholds, -Inf))]
+    if ("opt" %in% names(threasholds)) {
+      levels(res.dt$y.th) = c("<NA>", rev(names(threasholds))[-1], "<worse>")
+    } else {
+      levels(res.dt$y.th) = c(rev(names(threasholds)), "<worse>")
+    }
+  }
 }
 
 if (FALSE) {
