@@ -80,7 +80,6 @@ TerminationValue = R6Class(
             term = current.y.value - tol >= self$vars$best.y.value
           }
           progress = abs(start.y.value - current.y.value)/abs(start.y.value - self$vars$best.y.value)
-          browser()
           c(list(...), current.y.value = current.y.value, term = term, progress = progress, origin = class(self)[1])
         },
         vars = list(
