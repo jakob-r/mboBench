@@ -12,4 +12,7 @@ test_that("mbo benchmark works", {
     design = benchmark$getInitialDesignEvaluated(1, calculate = FALSE),
     control = ctrl,
     learner = lrn)
+
+  expect_equal(run$final.state, "term.feval")
+  expect_equal(getOptPathLength(run$opt.path), benchmark$termination.criterions$evals$vars$max.evals)
 })

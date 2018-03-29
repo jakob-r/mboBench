@@ -19,7 +19,8 @@ TerminationIteration = R6Class(
             iteration = iteration, 
             term = iteration > self$vars$max.iteration, 
             progress = iteration / self$vars$max.iteration,
-            origin = class(self)[1])
+            origin = class(self)[1],
+            code = "term.iter")
         },
         vars = list(max.iteration = assertInt(max.iteration, lower = 1))
       )
@@ -46,9 +47,10 @@ TerminationEvals = R6Class(
         fun = function(evals, ...) {
           c(list(...), 
             evals = evals, 
-            term = evals > self$vars$max.evals, 
+            term = evals >= self$vars$max.evals, 
             progress = evals / self$vars$max.evals,
-            origin = class(self)[1])
+            origin = class(self)[1],
+            code = "term.feval")
         },
         vars = list(max.evals = assertInt(max.evals, lower = 1))
       )
@@ -80,7 +82,12 @@ TerminationValue = R6Class(
             term = current.y.value - tol >= self$vars$best.y.value
           }
           progress = abs(start.y.value - current.y.value)/abs(start.y.value - self$vars$best.y.value)
-          c(list(...), current.y.value = current.y.value, term = term, progress = progress, origin = class(self)[1])
+          c(list(...),
+            current.y.value = current.y.value, 
+            term = term,
+            progress = progress,
+            origin = class(self)[1],
+            code = "term.yval")
         },
         vars = list(
           best.y.value = assertNumber(best.y.value, na.ok = FALSE),

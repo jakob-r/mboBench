@@ -36,7 +36,7 @@ TerminationCriterion = R6Class(
         start.y.value = getOptPathY(opt.path)[getOptPathBestIndex(opt.path, dob = 0)]
       )
       res = do.call(self$fun, args)
-      list(term = res$term, message = "term.custom", progress = res$progress)
+      list(term = res$term, code = res$code, progress = res$progress, message = res$message)
     }
   ),
 
