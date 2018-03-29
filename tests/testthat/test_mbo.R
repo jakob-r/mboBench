@@ -6,8 +6,10 @@ test_that("mbo benchmark works", {
   benchmark = generateSimpleBenchmark(makeBraninFunction())
   ctrl = makeMBOControl()
   ctrl = setMBOControlTermination(ctrl, more.termination.conds = benchmark$mlrmbo.termination.criterions)
+  lrn = makeLearner("regr.lm", predict.type = "se")
   run = mbo(
     fun = benchmark$smoof.fun, 
     design = benchmark$getInitialDesignEvaluated(1, calculate = FALSE),
-    control = ctrl)
+    control = ctrl,
+    learner = lrn)
 })
