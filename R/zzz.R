@@ -7,6 +7,7 @@
 #' @import R6
 #' @import parallelMap
 #' @import stringi
+#' @import ggplot2
 #' @importFrom stats quantile
 #' @importFrom stats runif
 #' @importFrom purrr map

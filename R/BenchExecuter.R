@@ -3,7 +3,7 @@
 #'
 #' @description
 #' BenchExecutor Class
-#' 
+#'
 #' @export
 BenchExecutor = R6Class(
   classname = "BenchExecutor",
@@ -20,7 +20,7 @@ BenchExecutor = R6Class(
     # constructor
     initialize = function(id = NULL, executor.fun, fixed.args = list(), resources.cpus.multiplicator = 1, resources.memory.multiplicator = 1, resources.walltime.multiplicator = 1) {
 
-      self$id = assertString(id) 
+      self$id = assertString(id)
       self$fixed.args = assertList(fixed.args, names = "named")
       self$executor.fun = assertFunction(executor.fun, args = "benchmark")
       self$resources.cpus.multiplicator = assertNumber(resources.cpus.multiplicator, lower = 1)
@@ -29,14 +29,14 @@ BenchExecutor = R6Class(
 
     },
 
-    execute = function(benchmark, ...) {
+    execute = function(benchmark, repl = 1, ...) {
       dots = list(...)
       assertList(dots, names = "named")
       assertTRUE(length(intersect(names(dots), names(self$fixed.args))) == 0)
       args = c(self$fixed.args, dots)
-      res = do.call(self$executor.fun, c(list(benchmark = benchmark), args))
+      res = do.call(self$executor.fun, c(list(benchmark = benchmark, repl = repl), args))
       assertClass(res, "BenchResult")
-      res$setExecutorValues(fixed.args = self$fixed.args, args = args, values = list(executor.fun.hash = sha1(self$executor.fun)))
+      res$algo.params = c(res$algo.params, args)
       return(res)
     }
   )

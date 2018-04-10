@@ -12,7 +12,8 @@ LazyData: true
 Depends:
     data.table,
     ParamHelpers,
-    smoof
+    smoof,
+    ggplot2
 Imports:
     backports (>= 1.1.1),
     BBmisc,

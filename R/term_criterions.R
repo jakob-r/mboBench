@@ -3,9 +3,9 @@
 #'
 #' @description
 #' TerminationIteration Class
-#' 
+#'
 #' @family TerminationCriterion
-#' 
+#'
 #' @export
 TerminationIteration = R6Class(
   "TerminationIteration",
@@ -15,9 +15,9 @@ TerminationIteration = R6Class(
       super$initialize(
         id = "max.iteration",
         fun = function(iteration, ...) {
-          c(list(...), 
-            iteration = iteration, 
-            term = iteration > self$vars$max.iteration, 
+          c(list(...),
+            iteration = iteration,
+            term = iteration > self$vars$max.iteration,
             progress = iteration / self$vars$max.iteration,
             origin = class(self)[1],
             code = "term.iter")
@@ -33,9 +33,9 @@ TerminationIteration = R6Class(
 #'
 #' @description
 #' TerminationEvals Class
-#' 
+#'
 #' @family TerminationCriterion
-#' 
+#'
 #' @export
 TerminationEvals = R6Class(
   "TerminationEvals",
@@ -45,9 +45,9 @@ TerminationEvals = R6Class(
       super$initialize(
         id = "max.evals",
         fun = function(evals, ...) {
-          c(list(...), 
-            evals = evals, 
-            term = evals >= self$vars$max.evals, 
+          c(list(...),
+            evals = evals,
+            term = evals >= self$vars$max.evals,
             progress = evals / self$vars$max.evals,
             origin = class(self)[1],
             code = "term.feval")
@@ -64,9 +64,9 @@ TerminationEvals = R6Class(
 #'
 #' @description
 #' TerminationValue Class
-#' 
+#'
 #' @family TerminationCriterion
-#' 
+#'
 #' @export
 TerminationValue = R6Class(
   "TerminationValue",
@@ -77,13 +77,13 @@ TerminationValue = R6Class(
         id = "best.y.value",
         fun = function(current.y.value, start.y.value, ...) {
           if (self$vars$minimization) {
-            term = current.y.value + tol <= self$vars$best.y.value 
+            term = current.y.value + tol <= self$vars$best.y.value
           } else {
             term = current.y.value - tol >= self$vars$best.y.value
           }
           progress = abs(start.y.value - current.y.value)/abs(start.y.value - self$vars$best.y.value)
           c(list(...),
-            current.y.value = current.y.value, 
+            current.y.value = current.y.value,
             term = term,
             progress = progress,
             origin = class(self)[1],

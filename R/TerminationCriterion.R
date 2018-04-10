@@ -3,9 +3,9 @@
 #'
 #' @description
 #' TerminationCriterion Class
-#' 
+#'
 #' @family TerminationCriterion
-#' 
+#'
 #' @export
 TerminationCriterion = R6Class(
   "TerminationCriterion",
