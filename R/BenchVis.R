@@ -32,6 +32,11 @@ aggregateBenchRepls = function(res.list, benchmark) {
     res.dt[, dob := seq_len(.N), by = c("repl", "algo.name", "algo.name.post")]
   }
 
+  # add nev (noumber of evaluation counter) if missing
+  if (is.null(res.dt$nev)) {
+    res.dt[, nev := seq_len(.N), by = c("repl", "algo.name", "algo.name.post")]
+  }
+
   res.dt[, algo.name.config := paste(algo.name, algo.name.post)]
 
   threasholds = benchmark$threasholds
@@ -65,7 +70,11 @@ aggregateBenchRepls = function(res.list, benchmark) {
   setkeyv(level.dt, c("algo.name.config", "repl", "y.th.i"))
   res.dt2 = res.dt2[level.dt, roll = -Inf]
   res.dt2[, y.th := ordered(y.th.i, labels = levels(getUsableThr(res.dt2$y.th)))]
+
+  # punish budget for incomplete runs
   res.dt2[is.na(dob), dob := as.integer(ceiling(max(res.dt$dob) * 2))]
+  res.dt2[is.na(nev), nev := as.integer(ceiling(max(res.dt$nev) * 2))]
+
   res.dt2 = res.dt2[, .SD[dob == max(dob),], by = c("algo.name.config", "repl", "y.th")]
 
   list(op.dt = res.dt, threasholds.dt = res.dt2)
