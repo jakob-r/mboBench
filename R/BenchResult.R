@@ -32,7 +32,7 @@ BenchResult = R6Class(
       assertTRUE(xor(is.null(op.dt), is.null(opt.path)))
 
       if (!is.null(opt.path)) {
-        op.dt = as.data.frame(as.data.table(opt.path))
+        op.dt = as.data.table(opt.path)
       }
 
       assertDataTable(op.dt, null.ok = TRUE)
@@ -56,7 +56,7 @@ BenchResult = R6Class(
         } else {
           init.design = benchmark$getInitialDesignEvaluated(repl)
         }
-        assertTRUE(identical(op.dt[seq_along(init.design[,1]), colnames(init.design)], init.design))
+        assertTRUE(identical(op.dt[seq_along(init.design[,1]), colnames(init.design), with = FALSE], as.data.table(init.design)))
       }
 
       self$id = id %??% benchmark$id

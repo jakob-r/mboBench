@@ -12,6 +12,7 @@ test_that("BenchExecutor and BenchResult works", {
     ys = evalDesign(random.design, benchmark$smoof.fun)[,1]
     op.dt = as.data.table(random.design)
     op.dt$y = ys
+    op.dt = tail(op.dt, benchmark$termination.criterions$evals$vars$max.evals)
     BenchResult$new(benchmark = benchmark, op.dt = op.dt)
   }
 
@@ -26,7 +27,7 @@ test_that("BenchExecutor and BenchResult works", {
     bench.exec$execute(benchmark2, paramB = 20)
   })
   expect_class(repls.bench1[[1]], "BenchResult")
-  expect_true(repls.bench1[[1]]$values$executor$fixed.args$paramA == 10)
+  expect_true(repls.bench1[[1]]$algo.params$paramA == 10)
 
   expect_equal(benchmark$hash, repls.bench1[[1]]$benchmark.hash)
 })

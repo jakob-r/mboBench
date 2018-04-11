@@ -34,9 +34,10 @@ BenchExecutor = R6Class(
       assertList(dots, names = "named")
       assertTRUE(length(intersect(names(dots), names(self$fixed.args))) == 0)
       args = c(self$fixed.args, dots)
-      res = do.call(self$executor.fun, c(list(benchmark = benchmark, repl = repl), args))
+      res = do.call(self$executor.fun, c(list(benchmark = benchmark), args))
       assertClass(res, "BenchResult")
       res$algo.params = c(res$algo.params, args)
+      res$repl = repl
       return(res)
     }
   )
