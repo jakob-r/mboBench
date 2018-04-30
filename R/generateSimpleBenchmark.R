@@ -41,7 +41,7 @@ generateSimpleBenchmark = function(smoof.fun) {
     termination.criterions = list()
   }
 
-  termination.evals = TerminationEvals$new(max.evals = round(20 * sqrt(d)))
+  termination.evals = TerminationEvals$new(max.evals = 16 * d)
 
   # Calculate skewness
   x = ys

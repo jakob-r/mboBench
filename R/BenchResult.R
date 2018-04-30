@@ -20,7 +20,7 @@ BenchResult = R6Class(
     algo.params = NULL,
 
     # constructor
-    initialize = function(id = NULL, benchmark, algo.name = NULL, algo.params = NULL, op.dt = NULL, opt.path = NULL, values = NULL, repl = 1) {
+    initialize = function(id = NULL, benchmark, algo.name = id, algo.params = NULL, op.dt = NULL, opt.path = NULL, values = NULL, repl = 1) {
 
       assertClass(benchmark, "Benchmark")
       assertCharacter(id, any.missing = FALSE, null.ok = TRUE)

@@ -3,9 +3,9 @@
 #'
 #' @description
 #' Benchmark Class
-#' 
+#'
 #' @family Benchmark
-#' 
+#'
 #' @export
 Benchmark = R6Class(
   classname = "Benchmark",
@@ -111,7 +111,8 @@ Benchmark = R6Class(
     resources.walltime = function() 1,
     resources.memory = function() 256,
     resources.cpus = function() 1,
-    hash = function() pseudodigest(self)
+    hash = function() pseudodigest(self),
+    minmax = function() if(self$minimize) min else max
   ),
 
   private = list(

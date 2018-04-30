@@ -20,7 +20,7 @@ BenchExecutor = R6Class(
     # constructor
     initialize = function(id = NULL, executor.fun, fixed.args = list(), resources.cpus.multiplicator = 1, resources.memory.multiplicator = 1, resources.walltime.multiplicator = 1) {
 
-      self$id = assertString(id)
+      self$id = assertString(id, null.ok = TRUE)
       self$fixed.args = assertList(fixed.args, names = "named")
       self$executor.fun = assertFunction(executor.fun, args = "benchmark")
       self$resources.cpus.multiplicator = assertNumber(resources.cpus.multiplicator, lower = 1)
@@ -34,10 +34,10 @@ BenchExecutor = R6Class(
       assertList(dots, names = "named")
       assertTRUE(length(intersect(names(dots), names(self$fixed.args))) == 0)
       args = c(self$fixed.args, dots)
-      res = do.call(self$executor.fun, c(list(benchmark = benchmark), args))
+      res = do.call(self$executor.fun, c(list(benchmark = benchmark, repl = repl), args))
       assertClass(res, "BenchResult")
       res$algo.params = c(res$algo.params, args)
-      res$repl = repl
+      res$algo.name = paste0(self$id, res$algo.name %??% character())
       return(res)
     }
   )

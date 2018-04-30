@@ -13,16 +13,16 @@ Depends:
     data.table,
     ParamHelpers,
     smoof,
-    ggplot2
+    ggplot2,
+    R6
 Imports:
     backports (>= 1.1.1),
     BBmisc,
     checkmate (>= 1.8.4),
     digest,
     lhs,
-    parallelMap,
     purrr,
-    R6,
+    foreach,
     stringi,
     methods
 Suggests: 

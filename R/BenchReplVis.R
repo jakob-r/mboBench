@@ -5,6 +5,8 @@ BenchReplVis = function(res.list, benchmark) {
   g1 = g1 + geom_hline(data = data.frame(value = benchmark$threasholds, threasholds = names(benchmark$threasholds)), mapping = aes(yintercept = value), alpha = 0.2)
   g1 = g1 + stat_summary(fun.y = median, geom="line")
   g1 = g1 + stat_summary(fun.ymin = partial(quantile, probs = 0.1), geom="ribbon", fun.ymax = partial(quantile, probs = 0.9), alpha = 0.1, color = NA)
+  y.range = range(c(benchmark$threasholds, benchmark$minmax(res$op.dt$y))) #add min y if minimization or max y if maximization to range
+  g1 = g1 + coord_cartesian(ylim = y.range)
 
   g2 = ggplot(res$threasholds.dt, aes(x = y.th, y = dob, fill = algo.name.config))
   g2 = g2 + geom_boxplot()

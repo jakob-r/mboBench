@@ -10,32 +10,29 @@ aggregateBenchRepls = function(res.list, benchmark) {
   # generate list of repls with opt paths
   res.dt = Map(cbind.data.frame, map(res.list, "op.dt"), repl = repls)
 
-  # add algo.name to each opt path
-  if (!is.null(res.list[[1]]$algo.name)) {
-    res.dt = Map(cbind, res.dt, algo.name = map_chr(res.list, "algo.name"))
-  } else {
-    res.dt = Map(cbind, res.dt, algo.name = "")
-  }
+  res.dt = Map(function(x, y) {cbind(x, algo.name = y$algo.name %??% NA)}, res.dt, res.list)
 
-  # add algo param to each opt path
-  if (!is.null(res.list[[1]]$algo.params)) {
-    algo.param = lapply(res.list, function(x) setNames(as.data.frame(x$algo.params), paste0("algo.param.", names(x$algo.params))))
-    algo.name.post = map_chr(res.list, function(x) paste0(names(x$algo.params), "=", x$algo.params, collapse = " "))
-    res.dt = Map(cbind, res.dt, algo.param, algo.name.post = algo.name.post)
-  }
+  res.dt = Map(function(x, y) {
+    if (length(y$algo.params)>0) {
+      z = setNames(as.data.frame(y$algo.params), paste0("algo.param.", names(y$algo.params)))
+      z$algo.name.post = paste0(names(y$algo.params), "=", y$algo.params, collapse = " ")
+      cbind(x, z)
+    } else {
+      cbind(x, algo.name.post = "")
+    }
+  }, res.dt, res.list)
 
   # combine opt paths to one data.table
   res.dt = rbindlist(res.dt, fill = TRUE)
 
+
   # add DOB if missing
-  if (is.null(res.dt$dob)) {
-    res.dt[, dob := seq_len(.N), by = c("repl", "algo.name", "algo.name.post")]
-  }
+  dob = NULL #haha hack
+  res.dt[is.null(dob), dob := seq_len(.N), by = c("repl", "algo.name", "algo.name.post")]
 
   # add nev (noumber of evaluation counter) if missing
-  if (is.null(res.dt$nev)) {
-    res.dt[, nev := seq_len(.N), by = c("repl", "algo.name", "algo.name.post")]
-  }
+  nev = NULL #again hack
+  res.dt[is.null(nev), nev := seq_len(.N), by = c("repl", "algo.name", "algo.name.post")]
 
   res.dt[, algo.name.config := paste(algo.name, algo.name.post)]
 
@@ -75,7 +72,7 @@ aggregateBenchRepls = function(res.list, benchmark) {
   res.dt2[is.na(dob), dob := as.integer(ceiling(max(res.dt$dob) * 2))]
   res.dt2[is.na(nev), nev := as.integer(ceiling(max(res.dt$nev) * 2))]
 
-  res.dt2 = res.dt2[, .SD[dob == max(dob),], by = c("algo.name.config", "repl", "y.th")]
+  res.dt2 = res.dt2[, .SD[dob == max(dob),], by = c("algo.name.config", "repl", "y.th", "algo.name", "algo.name.post", stringi::stri_subset(str = colnames(res.dt2), regex = "algo\\.param"))]
 
   list(op.dt = res.dt, threasholds.dt = res.dt2)
 }

@@ -7,16 +7,16 @@ test_that("BenchExecutor and BenchResult works", {
   expect_equal(benchmark$hash, benchmark3$hash)
   expect_true(benchmark$hash != benchmark2$hash)
 
-  bench.function = function(benchmark, paramA, paramB) {
+  bench.function = function(benchmark, paramA, paramB, repl) {
     random.design = generateRandomDesign(n = paramA+paramB, par.set = getParamSet(benchmark$smoof.fun))
     ys = evalDesign(random.design, benchmark$smoof.fun)[,1]
     op.dt = as.data.table(random.design)
     op.dt$y = ys
     op.dt = tail(op.dt, benchmark$termination.criterions$evals$vars$max.evals)
-    BenchResult$new(benchmark = benchmark, op.dt = op.dt)
+    BenchResult$new(benchmark = benchmark, op.dt = op.dt, repl = repl)
   }
 
-  res = bench.function(benchmark, 1, 1)
+  res = bench.function(benchmark, 1, 1, 1)
   expect_class(res, "BenchResult")
 
   bench.exec = BenchExecutor$new(id = "test.rs", executor.fun = bench.function, fixed.args = list(paramA = 10))

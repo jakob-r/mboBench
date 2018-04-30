@@ -4,22 +4,24 @@ BenchMultiVis = function(res.list, benchmarks) {
     bench.id = map_chr(benchmarks, "id"),
     bench.max.evals = map_dbl(benchmarks, c("termination.criterions", "evals", "vars", "max.evals"))
   )
+  #make sure bench ids are unique!
+  bench.tab[, bench.id := if (.N>1) paste0(bench.id, seq_len(.N)) else bench.id, by = .(bench.hash)]
   res.tab = data.table(
     bench.hash = map_chr(res.list, "benchmark.hash"),
     bench.no = seq_along(res.list)
   )
 
   # helper fun
-  benchmarkByHash = function(bench.hash) {
-    benchmarks[bench.tab$bench.hash == bench.hash][[1]]
+  benchmarkById = function(bench.id) {
+    benchmarks[bench.tab$bench.id == bench.id][[1]]
   }
 
   res.tab = merge(bench.tab, res.tab)
   res.all = res.tab[, {
-    this.benchmark = benchmarkByHash(bench.hash[1])
+    this.benchmark = benchmarkById(bench.id[1])
     agg.res = aggregateBenchRepls(res.list = res.list[bench.no], benchmark = this.benchmark)
     lapply(agg.res, list)
-    }, by = c("bench.hash")]
+    }, by = c("bench.id")]
 
   # unify threasholds
   for (i in seq_len(nrow(res.all))) {
@@ -29,14 +31,14 @@ BenchMultiVis = function(res.list, benchmarks) {
 
   # remove x columns
   for (i in seq_len(nrow(res.all))) {
-    x.ids = benchmarkByHash(res.all$bench.hash[i])$x.ids
+    x.ids = benchmarkById(res.all$bench.id[i])$x.ids
     res.all$op.dt[[i]][, (x.ids) := NULL]
     res.all$threasholds.dt[[i]][, (x.ids) := NULL]
   }
 
-  # put bench hash in sub tables
-  res.all$op.dt = Map(cbind, res.all$op.dt, bench.hash = res.all$bench.hash)
-  res.all$threasholds.dt = Map(cbind, res.all$threasholds.dt, bench.hash = res.all$bench.hash)
+  # put bench id in sub tables
+  res.all$op.dt = Map(cbind, res.all$op.dt, bench.id = res.all$bench.id)
+  res.all$threasholds.dt = Map(cbind, res.all$threasholds.dt, bench.id = res.all$bench.id)
 
   # merge to one dt
   op.dt = merge(bench.tab, rbindlist(res.all$op.dt, fill = TRUE))
@@ -52,7 +54,7 @@ BenchMultiVis = function(res.list, benchmarks) {
   g1 = g1 + geom_point(size = 0.5, alpha = 0.2)
   g1 = g1 + stat_summary(fun.y = median, geom="line")
   g1 = g1 + stat_summary(fun.ymin = partial(quantile, probs = 0.1), geom="ribbon", fun.ymax = partial(quantile, probs = 0.9), alpha = 0.1, color = NA)
-  g1 = g1 + facet_wrap(~bench.hash, scales = "free")
+  g1 = g1 + facet_wrap(~bench.id, scales = "free")
 
   # plot threashold progress
   g2 = ggplot(threasholds.dt, aes(x = y.th, y = nev.progress, fill = algo.name.config))
@@ -60,7 +62,18 @@ BenchMultiVis = function(res.list, benchmarks) {
   g2 = g2 + geom_hline(yintercept = 1)
   g2 = g2 + coord_cartesian(ylim=c(min(threasholds.dt$nev.progress), 1))
 
-  list(g1, g2)
+  ## Tables
+
+  threasholds.dt[, rank.prog := rank(nev.progress), by = .(bench.id, repl, y.th)]
+  # ranked performance, aggregates over replications
+  t1 = threasholds.dt[, mean(rank.prog), by = .(bench.id, algo.name.config, y.th)]
+  # aggregates over all thresholds
+  t2 = threasholds.dt[, mean(rank.prog), by = .(bench.id, algo.name.config)]
+  # aggregates over benchmarks
+  t3 = threasholds.dt[, mean(rank.prog), by = .(algo.name.config, y.th)]
+  #dcast(t3, algo.name.config~y.th, value.var = "V1")
+
+  list(plot.progress = g1, plot.threshold = g2, table.run = t1, table.all.thr.ave = t2, table.all.benchs = t3, raw.dt = threasholds.dt)
 }
 
 if (FALSE) {
@@ -68,26 +81,51 @@ if (FALSE) {
   library(checkmate)
   mydev()
   benchmarkA = generateSimpleBenchmark(makeBraninFunction())
-  benchmarkB = generateSimpleBenchmark(makeSwiler2014Function())
+  #benchmarkB = generateSimpleBenchmark(makeSwiler2014Function())
+  benchmarkB = generateSimpleBenchmark(makeRosenbrockFunction(7))
 
-  bench.function = function(benchmark, paramA, paramB, repl) {
-    random.design = generateRandomDesign(n = paramA+paramB, par.set = getParamSet(benchmark$smoof.fun))
-    ys = evalDesign(random.design, benchmark$smoof.fun)[,1]
-    op.dt = as.data.table(random.design)
-    op.dt$y = ys
-    op.dt = op.dt[order(ys, decreasing = benchmark$minimize)]
-    op.dt = tail(op.dt, benchmark$termination.criterions$evals$vars$max.evals)
-    BenchResult$new(benchmark = benchmark, op.dt = op.dt, repl = repl)
+  bench.cmaes = function(benchmark, repl, design, sigma = 1.5, lambda = 40) {
+    fun = smoof::addLoggingWrapper(benchmark$smoof.fun, logg.x = TRUE, logg.y = TRUE)
+    des = benchmark$getInitialDesignEvaluated(repl)
+    start.point = unlist(des[des$y == benchmark$minmax(des$y), benchmark$x.ids, drop = TRUE])
+    res = cmaesr::cmaes(
+      objective.fun = fun,
+      start.point = start.point,
+      control = list(
+        log.population = TRUE,
+        sigma = sigma,
+        lambda = lambda,
+        stop.ons =list(
+          cmaesr::stopOnMaxEvals(benchmark$termination.criterions$evals$vars$max.evals),
+          cmaesr::stopOnOptValue(benchmark$termination.criterions$termination.value$vars$best.y.value, tol = benchmark$termination.criterions$termination.value$vars$tol)
+        )
+      )
+    )
+    logged.values = getLoggedValues(fun)
+    op.dt = cbind(logged.values$pars, y = logged.values$obj.vals)
+    op.dt = head(op.dt, benchmark$termination.criterions$evals$vars$max.evals)
+    BenchResult$new(benchmark = benchmark, op.dt = as.data.table(op.dt), repl = repl)
   }
-  bench.exec = BenchExecutor$new(id = "test.rs", executor.fun = bench.function, fixed.args = list(paramA = 100))
-  repls.benchA1 = Map(bench.exec$execute, benchmark = list(benchmarkA), paramB = 1000, repl = as.list(1:10))
-  repls.benchA2 = Map(bench.exec$execute, benchmark = list(benchmarkA), paramB = 40, repl = as.list(1:10))
-  repls.benchB1 = Map(bench.exec$execute, benchmark = list(benchmarkB), paramB = 40, repl = as.list(1:10))
-  repls.benchB2 = Map(bench.exec$execute, benchmark = list(benchmarkB), paramB = 1000, repl = as.list(1:10))
+  bench.optim = function(benchmark, repl) {
+    fun = smoof::addLoggingWrapper(benchmark$smoof.fun, logg.x = TRUE, logg.y = TRUE)
+    des = benchmark$getInitialDesignEvaluated(repl)
+    start.point = unlist(des[des$y == benchmark$minmax(des$y), benchmark$x.ids, drop = TRUE])
+    res = optim(par = start.point, fn = fun, control = list(maxit = benchmark$termination.criterions$evals$vars$max.evals))
+    logged.values = getLoggedValues(fun)
+    op.dt = cbind(logged.values$pars, y = logged.values$obj.vals)
+    op.dt = head(op.dt, benchmark$termination.criterions$evals$vars$max.evals)
+    BenchResult$new(benchmark = benchmark, op.dt = as.data.table(op.dt), repl = repl)
+  }
+  bench.e.cmaes = BenchExecutor$new(id = "cmaesr", executor.fun = bench.cmaes, fixed.args = list(sigma = 1.5))
+  bench.e.optim = BenchExecutor$new(id = "optim", executor.fun = bench.optim)
+  repls.benchA1 = Map(bench.e.cmaes$execute, benchmark = list(benchmarkA), lambda = 20, repl = as.list(1:10))
+  repls.benchA2 = Map(bench.e.optim$execute, benchmark = list(benchmarkA), repl = as.list(1:10))
+  repls.benchB1 = Map(bench.e.cmaes$execute, benchmark = list(benchmarkB), lambda = 20, repl = as.list(1:10))
+  repls.benchB2 = Map(bench.e.optim$execute, benchmark = list(benchmarkB), repl = as.list(1:10))
   res.list = c(repls.benchA1, repls.benchA2, repls.benchB1, repls.benchB2)
   benchmarks = list(benchmarkB, benchmarkA)
   BenchReplVis(res.list = c(repls.benchB1, repls.benchB2), benchmark = benchmarkB)
-  res = aggregateBenchRepls(res.list = c(repls.benchB1, repls.benchB2), benchmark = benchmarkB)
-  res$op.dt[y == min(y)]
-  benchmarkB$threasholds
+  BenchReplVis(res.list = c(repls.benchA1, repls.benchA2), benchmark = benchmarkA)
+  res.list = c(repls.benchA1, repls.benchA2, repls.benchB1, repls.benchB2)
+  BenchMultiVis(res.list, benchmarks = benchmarks)
 }

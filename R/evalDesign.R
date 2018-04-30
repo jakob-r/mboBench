@@ -13,22 +13,17 @@ evalDesign = function(design, smoof.fun) {
 
   xs = dfRowsToList(design[, getParamIds(par.set, repeated = TRUE, with.nr = TRUE)], par.set)
 
-  evalX = function(xs) {
-    if (hasTrafo(par.set)) {
-      xs.trafo = lapply(xs, trafoValue, par = par.set)
-    } else {
-      xs.trafo = xs
-    }
-    parallelMap(
-      function(x) {
-        st = proc.time()
-        y = smoof.fun(x)
-        st = proc.time() - st
-        list(y = y, time = st[3])
-      }, x = xs.trafo, level = "mboBench.evalX"
-    )
+  if (hasTrafo(par.set)) {
+    xs.trafo = lapply(xs, trafoValue, par = par.set)
+  } else {
+    xs.trafo = xs
   }
-  ys = evalX(xs)
+  ys = foreach(x = xs.trafo) %do% {
+    st = proc.time()
+    y = smoof.fun(x)
+    st = proc.time() - st
+    list(y = y, time = st[3])
+  }
   y = map(ys, "y")
   y = do.call(rbind, y) # y now should always be a matrix [nrow(design) x d]
   colnames(y) = getYNames(ncol(y))
