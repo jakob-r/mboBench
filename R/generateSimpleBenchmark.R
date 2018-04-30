@@ -22,15 +22,16 @@ generateSimpleBenchmark = function(smoof.fun) {
   ys = evalDesign(random.design, smoof.fun)[,1]
   assertNumeric(ys, any.missing = FALSE, len = nrow(random.design))
   if (shouldBeMinimized(smoof.fun)) {
-    design.min = mean(aggregate(ys~floor(seq_along(ys) %% initial.design.n), FUN = min)[,2])
-    design.min = mean(ys<=design.min)
+    design.min.y = mean(aggregate(ys~floor(seq_along(ys) %% initial.design.n), FUN = min)[,2])
+    design.min = mean(ys<=design.min.y)
     threasholds = quantile(ys, seq(from = design.min, to = 0, length.out = 10))
+    threasholds
   } else {
-    design.max = mean(aggregate(ys~floor(seq_along(ys) %% initial.design.n), FUN = max)[,2])
-    design.max = mean(ys>=design.max)
+    design.max.y = mean(aggregate(ys~floor(seq_along(ys) %% initial.design.n), FUN = max)[,2])
+    design.max = mean(ys>=design.max.y)
     threasholds = quantile(ys, seq(from = design.max, to = 1, length.out = 10))
   }
-  best.y.value = getGlobalOptimum(smoof.fun)$value 
+  best.y.value = getGlobalOptimum(smoof.fun)$value
   if (!is.null(best.y.value)) {
     threasholds = c(threasholds, opt = getGlobalOptimum(smoof.fun)$value)
     termination.criterions = list(
@@ -40,8 +41,9 @@ generateSimpleBenchmark = function(smoof.fun) {
     termination.criterions = list()
   }
 
-  # calculate how many evaluations we should allow
-  max.evals = 20 * sqrt(d)
+  termination.evals = TerminationEvals$new(max.evals = round(20 * sqrt(d)))
+
+  # Calculate skewness
   x = ys
   if (!shouldBeMinimized(smoof.fun)) {
     x = -x
@@ -50,10 +52,6 @@ generateSimpleBenchmark = function(smoof.fun) {
   x = x - mean(x)
   # a skew < 0 means a hard minimization problem, because just a few values are close to the minimum
   skew = 1/n * sum(x ^ 3) / (1/(n-1) * sum(x ^ 2)) ^ (3/2)
-  #skew.double = 2 * sqrt(2) / 5 # skewness of a triangle a = 0, b = 1 , c = 1
-  guess.max.evals = max.evals * 2 ^ (2 * tanh(-skew))
-  max.evals = round(initial.design.n + max(min(guess.max.evals, 10 * max.evals), max.evals / 10))
-  termination.evals = TerminationEvals$new(max.evals = max.evals)
 
   tags = c("simple.benchmark", getTags(smoof.fun))
 
@@ -61,7 +59,7 @@ generateSimpleBenchmark = function(smoof.fun) {
   if (is.na(id)) {
     id = stri_replace_all_regex(str = smoof::getName(smoof.fun), pattern = "[^a-zA-Z1-9]", replacement = "_")
   }
-  
+
   Benchmark$new(
     id = paste0("simple.", id),
     smoof.fun = smoof.fun,
