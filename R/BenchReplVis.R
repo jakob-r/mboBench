@@ -1,3 +1,4 @@
+#' @export
 BenchReplVis = function(res.list, benchmark) {
   res = aggregateBenchRepls(res.list, benchmark)
   g1 = ggplot(res$op.dt, aes_string(x = "dob", y = "y.dob.c", group = "algo.name.config", color = "algo.name.config", fill = "algo.name.config"))

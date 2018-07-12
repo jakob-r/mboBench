@@ -26,7 +26,7 @@ BenchResult = R6Class(
       assertCharacter(id, any.missing = FALSE, null.ok = TRUE)
       assertInt(repl)
       assertString(algo.name, null.ok = TRUE)
-      assertList(algo.params, null.ok = TRUE)
+      assertList(algo.params, c("numeric", "integer", "character", "logical", "complex"), null.ok = TRUE)
 
       assertClass(opt.path, "OptPath", null.ok = TRUE)
       assertTRUE(xor(is.null(op.dt), is.null(opt.path)))

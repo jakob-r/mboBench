@@ -1,3 +1,4 @@
+#' @export
 BenchMultiVis = function(res.list, benchmarks) {
   bench.tab = data.table(
     bench.hash = map_chr(benchmarks, "hash"),
