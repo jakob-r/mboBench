@@ -15,9 +15,11 @@ BenchResult = R6Class(
     op.dt = NULL,
     values = NULL,
     repl = NULL,
-    executed = FALSE,
     algo.name = NULL,
     algo.params = NULL,
+    benchmark.thresholds = NULL,
+    benchmark.minimize = NULL,
+    benchmark.max.evals = NULL,
 
     # constructor
     initialize = function(id = NULL, benchmark, algo.name = id, algo.params = NULL, op.dt = NULL, opt.path = NULL, values = NULL, repl = 1) {
@@ -66,6 +68,45 @@ BenchResult = R6Class(
       self$repl = repl
       self$algo.name = algo.name
       self$algo.params = algo.params
+      self$benchmark.thresholds = benchmark$thresholds
+      self$benchmark.minimize = benchmark$minimize
+      sefl$benchmark.max.evals = benchmark$termination.criterions$evals$vars$max.evals
     }
-  )
+  ),
+
+  active = list(
+    threshold.performances = function() {
+      if (is.null(private$p.threshold.performances)) {
+        if (!self$benchmark.minimize) {
+          stop("not implemented for maximization, yet")
+        }
+        
+        op.dt = self$op.dt
+        nev = NULL #again hack
+        op.dt[is.null(nev), nev := seq_len(.N)]
+        
+        # build all wanted thresholds
+        dt.th = data.table(y = self$benchmark.thresholds, threshold = names(self$benchmark.thresholds))
+        # for each threshold find the evals(lines) that below this one and before the next one
+        op.dt = dt.th[op.dt, , roll = -Inf, on = "y"]
+        # for each threshold take the first eval (according to dob)
+        op.dt = op.dt[, .SD[dob == min(dob), ][1,] ,by = .(threshold)]
+        # generate lines for each threshold
+        op.dt = op.dt[dt.th[, .(threshold), ], on = "threshold"]
+        # sort lower threshold first
+        setkeyv(op.dt, "threshold")
+        # calc when threshold was hit according to dob
+        op.dt[, dob := cummin(ifelse(is.na(dob), Inf, dob))]
+        op.dt[, nev.progress := nev / self$benchmark.max.evals]
+        private$p.threshold.performances = op.dt[, .(threshold, nev.progress)]
+      }
+      return(private$threshold.performances)
+    },
+    auc = function() {
+      stop("please implement me")
+    }
+  ),
+
+  private = list(
+    p.threshold.performances = NULL)
 )

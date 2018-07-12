@@ -36,16 +36,16 @@ aggregateBenchRepls = function(res.list, benchmark) {
 
   res.dt[, algo.name.config := paste(algo.name, algo.name.post)]
 
-  threasholds = benchmark$threasholds
+  thresholds = benchmark$thresholds
   if (benchmark$minimize) {
     res.dt[, y.dob := min(y), by = c("algo.name.config", "repl", "dob")]
     setkeyv(res.dt, c("algo.name.config", "repl", "dob"))
     res.dt[, y.dob.c := cummin(y.dob), by = c("algo.name.config", "repl")]
-    res.dt[, y.th := cut(y.dob.c, c(Inf, threasholds, -Inf))]
-    if ("opt" %in% names(threasholds)) {
-      levels(res.dt$y.th) = c("<NA>", rev(names(threasholds))[-1], "<worse>")
+    res.dt[, y.th := cut(y.dob.c, c(Inf, thresholds, -Inf))]
+    if ("opt" %in% names(thresholds)) {
+      levels(res.dt$y.th) = c("<NA>", rev(names(thresholds))[-1], "<worse>")
     } else {
-      levels(res.dt$y.th) = c(rev(names(threasholds)), "<worse>")
+      levels(res.dt$y.th) = c(rev(names(thresholds)), "<worse>")
     }
     res.dt[, y.th := ordered(y.th, levels = rev(levels(y.th)))]
   } else {
@@ -54,13 +54,14 @@ aggregateBenchRepls = function(res.list, benchmark) {
     stop("Not implemented!")
   }
 
-  # Build data.frame when each threashold was passed
+  # Build data.frame when each threshold was passed
 
   res.dt2 = copy(res.dt)
   getUsableThr = function(x) {
     ordered(x, levels = setdiff(levels(x), c("<NA>", "<worse>")))
   }
 
+  # crossproduct of all data points we need
   level.dt = CJ(algo.name.config = unique(res.dt2$algo.name.config), repl = unique(res.dt2$repl), y.th.i = seq_along(levels(getUsableThr(res.dt2$y.th))))
   res.dt2[, y.th.i := as.integer(getUsableThr(y.th))]
   setkeyv(res.dt2, c("algo.name.config", "repl", "y.th.i"))
@@ -74,5 +75,5 @@ aggregateBenchRepls = function(res.list, benchmark) {
 
   res.dt2 = res.dt2[, .SD[dob == max(dob),], by = c("algo.name.config", "repl", "y.th", "algo.name", "algo.name.post", stringi::stri_subset(str = colnames(res.dt2), regex = "algo\\.param"))]
 
-  list(op.dt = res.dt, threasholds.dt = res.dt2)
+  list(op.dt = res.dt, thresholds.dt = res.dt2)
 }

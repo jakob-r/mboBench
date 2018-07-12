@@ -24,16 +24,16 @@ generateSimpleBenchmark = function(smoof.fun) {
   if (shouldBeMinimized(smoof.fun)) {
     design.min.y = mean(aggregate(ys~floor(seq_along(ys) %% initial.design.n), FUN = min)[,2])
     design.min = mean(ys<=design.min.y)
-    threasholds = quantile(ys, seq(from = design.min, to = 0, length.out = 10))
-    threasholds
+    thresholds = quantile(ys, seq(from = design.min, to = 0, length.out = 10))
+    thresholds
   } else {
     design.max.y = mean(aggregate(ys~floor(seq_along(ys) %% initial.design.n), FUN = max)[,2])
     design.max = mean(ys>=design.max.y)
-    threasholds = quantile(ys, seq(from = design.max, to = 1, length.out = 10))
+    thresholds = quantile(ys, seq(from = design.max, to = 1, length.out = 10))
   }
   best.y.value = getGlobalOptimum(smoof.fun)$value
   if (!is.null(best.y.value)) {
-    threasholds = c(threasholds, opt = getGlobalOptimum(smoof.fun)$value)
+    thresholds = c(thresholds, opt = getGlobalOptimum(smoof.fun)$value)
     termination.criterions = list(
       termination.value = TerminationValue$new(best.y.value = best.y.value, minimization = shouldBeMinimized(smoof.fun), tol = 1e-10)
       )
@@ -64,7 +64,7 @@ generateSimpleBenchmark = function(smoof.fun) {
     id = paste0("simple.", id),
     smoof.fun = smoof.fun,
     termination.criterions = c(list(evals = termination.evals), termination.criterions),
-    threasholds = threasholds,
+    thresholds = thresholds,
     initial.design.n = initial.design.n,
     tags = tags,
     values = list(skew = skew))
@@ -79,5 +79,5 @@ if (FALSE) {
   ctrl = setMBOControlTermination(ctrl, more.termination.conds = bench$mlrmbo.termination.criterions)
   run = mbo(fun = bench$smoof.fun, design = bench$getInitialDesign(1), control = ctrl)
   run$y
-  bench$threasholds
+  bench$thresholds
 }

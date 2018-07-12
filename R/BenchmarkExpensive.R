@@ -18,7 +18,7 @@ BenchmarkExpensive = R6Class(
     resources.cpus = NULL,
 
     # constructor
-    initialize = function(id = NULL, smoof.fun, termination.criterions, expensive = FALSE, threasholds, initial.designs = NULL, initial.design.n = NULL, tags = character(0L), values = NULL, resources.cpus = 1, resources.memory = 256, resources.walltime = 1) {
+    initialize = function(id = NULL, smoof.fun, termination.criterions, expensive = FALSE, thresholds, initial.designs = NULL, initial.design.n = NULL, tags = character(0L), values = NULL, resources.cpus = 1, resources.memory = 256, resources.walltime = 1) {
 
       self$resources.cpus = assertInt(resources.cpus, lower = 1)
       self$resources.memory = assertInt(resources.memory, lower = 256)

@@ -24,31 +24,31 @@ BenchMultiVis = function(res.list, benchmarks) {
     lapply(agg.res, list)
     }, by = c("bench.id")]
 
-  # unify threasholds
+  # unify thresholds
   for (i in seq_len(nrow(res.all))) {
     levels(res.all$op.dt[[i]]$y.th) = c(paste0(seq(0, 100, by = 10),"%"), "<NA>")
-    levels(res.all$threasholds.dt[[i]]$y.th) = c(paste0(seq(10, 100, by = 10),"%"))
+    levels(res.all$thresholds.dt[[i]]$y.th) = c(paste0(seq(10, 100, by = 10),"%"))
   }
 
   # remove x columns
   for (i in seq_len(nrow(res.all))) {
     x.ids = benchmarkById(res.all$bench.id[i])$x.ids
     res.all$op.dt[[i]][, (x.ids) := NULL]
-    res.all$threasholds.dt[[i]][, (x.ids) := NULL]
+    res.all$thresholds.dt[[i]][, (x.ids) := NULL]
   }
 
   # put bench id in sub tables
   res.all$op.dt = Map(cbind, res.all$op.dt, bench.id = res.all$bench.id)
-  res.all$threasholds.dt = Map(cbind, res.all$threasholds.dt, bench.id = res.all$bench.id)
+  res.all$thresholds.dt = Map(cbind, res.all$thresholds.dt, bench.id = res.all$bench.id)
 
   # merge to one dt
   op.dt = merge(bench.tab, rbindlist(res.all$op.dt, fill = TRUE))
-  threasholds.dt = merge(bench.tab, rbindlist(res.all$threasholds.dt, fill = TRUE))
+  thresholds.dt = merge(bench.tab, rbindlist(res.all$thresholds.dt, fill = TRUE))
 
   # unify dob to progress
   #not needed atm
   #op.dt[, dob.progress := dob / max(dob)]
-  threasholds.dt[, nev.progress := nev / bench.max.evals]
+  thresholds.dt[, nev.progress := nev / bench.max.evals]
 
   # plot opt path progress
   g1 = ggplot(op.dt, aes_string(x = "dob", y = "y.dob.c", group = "algo.name.config", color = "algo.name.config", fill = "algo.name.config"))
@@ -57,24 +57,24 @@ BenchMultiVis = function(res.list, benchmarks) {
   g1 = g1 + stat_summary(fun.ymin = partial(quantile, probs = 0.1), geom="ribbon", fun.ymax = partial(quantile, probs = 0.9), alpha = 0.1, color = NA)
   g1 = g1 + facet_wrap(~bench.id, scales = "free")
 
-  # plot threashold progress
-  g2 = ggplot(threasholds.dt, aes(x = y.th, y = nev.progress, fill = algo.name.config))
+  # plot threshold progress
+  g2 = ggplot(thresholds.dt, aes(x = y.th, y = nev.progress, fill = algo.name.config))
   g2 = g2 + geom_boxplot()
   g2 = g2 + geom_hline(yintercept = 1)
-  g2 = g2 + coord_cartesian(ylim=c(min(threasholds.dt$nev.progress), 1))
+  g2 = g2 + coord_cartesian(ylim=c(min(thresholds.dt$nev.progress), 1))
 
   ## Tables
 
-  threasholds.dt[, rank.prog := rank(nev.progress), by = .(bench.id, repl, y.th)]
+  thresholds.dt[, rank.prog := rank(nev.progress), by = .(bench.id, repl, y.th)]
   # ranked performance, aggregates over replications
-  t1 = threasholds.dt[, mean(rank.prog), by = .(bench.id, algo.name.config, y.th)]
+  t1 = thresholds.dt[, mean(rank.prog), by = .(bench.id, algo.name.config, y.th)]
   # aggregates over all thresholds
-  t2 = threasholds.dt[, mean(rank.prog), by = .(bench.id, algo.name.config)]
+  t2 = thresholds.dt[, mean(rank.prog), by = .(bench.id, algo.name.config)]
   # aggregates over benchmarks
-  t3 = threasholds.dt[, mean(rank.prog), by = .(algo.name.config, y.th)]
+  t3 = thresholds.dt[, mean(rank.prog), by = .(algo.name.config, y.th)]
   #dcast(t3, algo.name.config~y.th, value.var = "V1")
 
-  list(plot.progress = g1, plot.threshold = g2, table.run = t1, table.all.thr.ave = t2, table.all.benchs = t3, raw.dt = threasholds.dt)
+  list(plot.progress = g1, plot.threshold = g2, table.run = t1, table.all.thr.ave = t2, table.all.benchs = t3, raw.dt = thresholds.dt)
 }
 
 if (FALSE) {

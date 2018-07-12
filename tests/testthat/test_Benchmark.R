@@ -4,7 +4,7 @@ test_that("Benchmark works", {
   benchmark = Benchmark$new(
     smoof.fun = makeBraninFunction(),
     termination.criterions = list(eval = TerminationEvals$new(max.evals = 10)),
-    threasholds = c(50, 25, 10, 0.3979),
+    thresholds = c(50, 25, 10, 0.3979),
     initial.design.n = 10,
     tags = c("test")
   )

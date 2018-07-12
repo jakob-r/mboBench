@@ -16,12 +16,12 @@ Benchmark = R6Class(
     smoof.fun = NULL,
     termination.criterions = NULL,
     expensive = NULL,
-    threasholds = NULL,
+    thresholds = NULL,
     tags = NULL,
     values = NULL, # stores additional values in a list
 
     # constructor
-    initialize = function(id = NULL, smoof.fun, termination.criterions, expensive = FALSE, threasholds, initial.designs = NULL, initial.design.n = NULL, tags = character(0L), values = NULL) {
+    initialize = function(id = NULL, smoof.fun, termination.criterions, expensive = FALSE, thresholds, initial.designs = NULL, initial.design.n = NULL, tags = character(0L), values = NULL) {
 
       assertFunction(smoof.fun)
       self$smoof.fun = assertClass(smoof.fun, "smoof_function")
@@ -33,7 +33,7 @@ Benchmark = R6Class(
 
       self$expensive = assertFlag(expensive)
 
-      self$threasholds = assertNumeric(threasholds, any.missing = FALSE)
+      self$thresholds = assertNumeric(thresholds, any.missing = FALSE)
 
       assertTRUE(xor(is.null(initial.designs), is.null(initial.design.n)))
       private$initial.designs = assertList(initial.designs, "data.frame", null.ok = TRUE)
