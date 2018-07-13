@@ -77,50 +77,19 @@ BenchResult = R6Class(
   active = list(
     threshold.performances = function() {
       if (is.null(private$p.threshold.performances)) {
-        if (!self$benchmark.minimize) {
-          stop("not implemented for maximization, yet")
-        }
-        
-        op.dt = copy(self$op.dt)
-        nev = NULL #again hack
-        op.dt[is.null(nev), nev := seq_len(.N)]
-        dob = NULL
-        op.dt[is.null(dob), dob := seq_len(.N)]
-        
-        # build all wanted thresholds
-        dt.th = data.table(y = self$benchmark.thresholds, threshold = factor(names(self$benchmark.thresholds), levels = names(self$benchmark.thresholds)))
-        # for each threshold find the evals(lines) that below this one and before the next one
-        op.dt = dt.th[op.dt, , roll = -Inf, on = "y"]
-        # for each threshold take the first eval (according to dob)
-        op.dt = op.dt[, .SD[dob == min(dob), ][1,] ,by = .(threshold)]
-        # generate lines for each threshold
-        op.dt = op.dt[dt.th[, .(threshold), ], on = "threshold"]
-        # sort lower threshold first
-        setorderv(op.dt, "threshold", order=-1L, na.last=FALSE)
-        # calc when threshold was hit according to dob
-        op.dt[, nev.progress := nev / self$benchmark.max.evals]
-        op.dt[, nev.progress := cummin(ifelse(is.na(nev.progress), Inf, nev.progress))]
-        setorderv(op.dt, "threshold", order=1L, na.last=FALSE)
-        private$p.threshold.performances = op.dt[, .(threshold, nev.progress)]
+        private$p.threshold.performances = benchresultThresholdPerformances(self)
       }
       return(private$p.threshold.performances)
     },
     stepfun = function() {
       if (is.null(private$p.stepfun)) {
-        y = rev(as.numeric(self$threshold.performances$threshold))
-        y = (y-1) / max(y)
-        x = self$threshold.performances$nev.progress
-        y = y[is.finite(x)]
-        x = x[is.finite(x)]
-        x = c(0,x)
-        y = c(1,y, min(tail(y,1),1)) # min incase y is empty (all x inf)
-        private$p.stepfun = stepfun(x,y)
+        private$p.stepfun = benchresultStepfun(self)
       }
       return(private$p.stepfun)
     },
     auc = function() {
       if (is.null(private$p.auc)) {
-        private$p.auc = integrate(self$stepfun,0,1)$value
+        private$p.auc = benchresultAuc(self)
       }
       return(private$p.auc)
     }
@@ -131,3 +100,46 @@ BenchResult = R6Class(
     p.stepfun = NULL,
     p.auc = NULL)
 )
+
+benchresultThresholdPerformances = function(self) {
+  if (!self$benchmark.minimize) {
+    stop("not implemented for maximization, yet")
+  }
+  
+  op.dt = copy(self$op.dt)
+  nev = NULL #again hack
+  op.dt[is.null(nev), nev := seq_len(.N)]
+  dob = NULL
+  op.dt[is.null(dob), dob := seq_len(.N)]
+  
+  # build all wanted thresholds
+  dt.th = data.table(y = self$benchmark.thresholds, threshold = factor(names(self$benchmark.thresholds), levels = names(self$benchmark.thresholds)))
+  # for each threshold find the evals(lines) that below this one and before the next one
+  op.dt = dt.th[op.dt, , roll = -Inf, on = "y"]
+  # for each threshold take the first eval (according to dob)
+  op.dt = op.dt[, .SD[dob == min(dob), ][1,] ,by = .(threshold)]
+  # generate lines for each threshold
+  op.dt = op.dt[dt.th[, .(threshold), ], on = "threshold"]
+  # sort lower threshold first
+  setorderv(op.dt, "threshold", order=-1L, na.last=FALSE)
+  # calc when threshold was hit according to dob
+  op.dt[, nev.progress := nev / self$benchmark.max.evals]
+  op.dt[, nev.progress := cummin(ifelse(is.na(nev.progress), Inf, nev.progress))]
+  setorderv(op.dt, "threshold", order=1L, na.last=FALSE)
+  return(op.dt[, .(threshold, nev.progress)])
+}
+
+benchresultStepfun = function(self) {
+  y = rev(as.numeric(self$threshold.performances$threshold))
+  y = (y-1) / max(y)
+  x = self$threshold.performances$nev.progress
+  y = y[is.finite(x)]
+  x = x[is.finite(x)]
+  x = c(0,x)
+  y = c(1,y, min(tail(y,1),1)) # min incase y is empty (all x inf)
+  stepfun(x, y)
+}
+
+benchresultAuc = function(self) {
+  integrate(self$stepfun,0,1)$value
+}
