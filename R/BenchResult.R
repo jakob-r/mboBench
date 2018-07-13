@@ -70,7 +70,7 @@ BenchResult = R6Class(
       self$algo.params = algo.params
       self$benchmark.thresholds = benchmark$thresholds
       self$benchmark.minimize = benchmark$minimize
-      sefl$benchmark.max.evals = benchmark$termination.criterions$evals$vars$max.evals
+      self$benchmark.max.evals = benchmark$termination.criterions$evals$vars$max.evals
     }
   ),
 
@@ -81,12 +81,14 @@ BenchResult = R6Class(
           stop("not implemented for maximization, yet")
         }
         
-        op.dt = self$op.dt
+        op.dt = copy(self$op.dt)
         nev = NULL #again hack
         op.dt[is.null(nev), nev := seq_len(.N)]
+        dob = NULL
+        op.dt[is.null(dob), dob := seq_len(.N)]
         
         # build all wanted thresholds
-        dt.th = data.table(y = self$benchmark.thresholds, threshold = names(self$benchmark.thresholds))
+        dt.th = data.table(y = self$benchmark.thresholds, threshold = factor(names(self$benchmark.thresholds), levels = names(self$benchmark.thresholds)))
         # for each threshold find the evals(lines) that below this one and before the next one
         op.dt = dt.th[op.dt, , roll = -Inf, on = "y"]
         # for each threshold take the first eval (according to dob)
@@ -94,19 +96,38 @@ BenchResult = R6Class(
         # generate lines for each threshold
         op.dt = op.dt[dt.th[, .(threshold), ], on = "threshold"]
         # sort lower threshold first
-        setkeyv(op.dt, "threshold")
+        setorderv(op.dt, "threshold", order=-1L, na.last=FALSE)
         # calc when threshold was hit according to dob
-        op.dt[, dob := cummin(ifelse(is.na(dob), Inf, dob))]
         op.dt[, nev.progress := nev / self$benchmark.max.evals]
+        op.dt[, nev.progress := cummin(ifelse(is.na(nev.progress), Inf, nev.progress))]
+        setorderv(op.dt, "threshold", order=1L, na.last=FALSE)
         private$p.threshold.performances = op.dt[, .(threshold, nev.progress)]
       }
-      return(private$threshold.performances)
+      return(private$p.threshold.performances)
+    },
+    stepfun = function() {
+      if (is.null(private$p.stepfun)) {
+        y = rev(as.numeric(self$threshold.performances$threshold))
+        y = (y-1) / max(y)
+        x = self$threshold.performances$nev.progress
+        y = y[is.finite(x)]
+        x = x[is.finite(x)]
+        x = c(0,x)
+        y = c(1,y, min(tail(y,1),1)) # min incase y is empty (all x inf)
+        private$p.stepfun = stepfun(x,y)
+      }
+      return(private$p.stepfun)
     },
     auc = function() {
-      stop("please implement me")
+      if (is.null(private$p.auc)) {
+        private$p.auc = integrate(self$stepfun,0,1)$value
+      }
+      return(private$p.auc)
     }
   ),
 
   private = list(
-    p.threshold.performances = NULL)
+    p.threshold.performances = NULL,
+    p.stepfun = NULL,
+    p.auc = NULL)
 )

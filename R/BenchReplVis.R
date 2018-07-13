@@ -1,3 +1,13 @@
+#' @title Visualization for a single repeated Benchmar
+#'
+#' @description
+#' Visualization for a single repeated Benchmar
+#'
+#' @param res.list [\code{list}]\cr
+#'   Lift of BenchResult Objects
+#' @param benchmark [\code{Benchmark}]\cr
+#'   The Benchmark object for the benchmarks in the \code{res.list}.
+#' @return list of ggplot objects
 #' @export
 BenchReplVis = function(res.list, benchmark) {
   res = aggregateBenchRepls(res.list, benchmark)

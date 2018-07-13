@@ -1,4 +1,15 @@
-#' @export
+#' @title Visualize and Evaluate multiple Benchmarks
+#'
+#' @description
+#' Visualize and Evaluate multiple Benchmarks
+#'
+#' @param res.list [\code{list}]\cr
+#'   List of BenchmarkResult Objects
+#' @param benchmarks [\code{list}]\cr
+#'   List of Benchmarks.
+#'   Will be matched with res.list entries.
+#' @return list of ggplots and tables
+#' @export  
 BenchMultiVis = function(res.list, benchmarks) {
   bench.tab = data.table(
     bench.hash = map_chr(benchmarks, "hash"),

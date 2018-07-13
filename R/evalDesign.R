@@ -11,7 +11,7 @@ evalDesign = function(design, smoof.fun) {
 
   par.set = getParamSet(smoof.fun)
 
-  xs = dfRowsToList(design[, getParamIds(par.set, repeated = TRUE, with.nr = TRUE)], par.set)
+  xs = dfRowsToList(design[, getParamIds(par.set, repeated = TRUE, with.nr = TRUE), drop = FALSE], par.set)
 
   if (hasTrafo(par.set)) {
     xs.trafo = lapply(xs, trafoValue, par = par.set)
