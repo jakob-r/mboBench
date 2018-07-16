@@ -99,6 +99,7 @@ BenchResult = R6Class(
     p.threshold.performances = NULL,
     p.stepfun = NULL,
     p.threshold.auc = NULL
+  )
 )
 
 benchresultThresholdPerformances = function(self) {
