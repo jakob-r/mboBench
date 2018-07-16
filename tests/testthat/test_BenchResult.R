@@ -30,14 +30,14 @@ test_that("BenchResult works", {
   expect_equal(results$direct.hit2$threshold.performances$nev.progress, rep(1, n) / n.max)
   expect_equal(results$direct.half.hit$threshold.performances$nev.progress, c(rep(1, 6), rep(Inf, n-6)) / n.max)
 
-  expect_true(results$ideal.steps$auc < results$subideal.steps$auc)
-  expect_equal(results$worse$auc, 1)
-  expect_numeric(results$half$auc, lower = 0.35, upper = 0.65)
-  expect_equal(results$direct.hit1$auc, results$direct.hit2$auc)
-  expect_numeric(results$direct.half.hit$auc, lower = 0.45, upper = 0.55)
+  expect_true(results$ideal.steps$threshold.auc < results$subideal.steps$threshold.auc)
+  expect_equal(results$worse$threshold.auc, 1)
+  expect_numeric(results$half$threshold.auc, lower = 0.35, upper = 0.65)
+  expect_equal(results$direct.hit1$threshold.auc, results$direct.hit2$threshold.auc)
+  expect_numeric(results$direct.half.hit$threshold.auc, lower = 0.45, upper = 0.55)
   class(results$half$stepfun)
   for (i in seq_along(results)) {
-    expect_numeric(results[[i]]$auc, 0, 1)
+    expect_numeric(results[[i]]$threshold.auc, 0, 1)
     expect_class(results[[i]]$stepfun, "stepfun")
     # plot(results[[i]]$stepfun, ylim = c(0,1), xlim = c(0,1))
   }

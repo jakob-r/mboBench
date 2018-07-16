@@ -32,5 +32,5 @@ test_that("BenchExecutor and BenchResult works", {
   expect_equal(benchmark$hash, repls.bench1[[1]]$benchmark.hash)
 
   expect_data_table(repls.bench1[[1]]$threshold.performances)
-  expect_numeric(repls.bench1[[1]]$auc)
+  expect_numeric(repls.bench1[[1]]$threshold.auc)
 })

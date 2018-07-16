@@ -87,18 +87,18 @@ BenchResult = R6Class(
       }
       return(private$p.stepfun)
     },
-    auc = function() {
-      if (is.null(private$p.auc)) {
-        private$p.auc = benchresultAuc(self)
+    threshold.auc = function() {
+      if (is.null(private$p.threshold.auc)) {
+        private$p.threshold.auc = benchresultThresholdAuc(self)
       }
-      return(private$p.auc)
+      return(private$p.threshold.auc)
     }
   ),
 
   private = list(
     p.threshold.performances = NULL,
     p.stepfun = NULL,
-    p.auc = NULL)
+    p.threshold.auc = NULL
 )
 
 benchresultThresholdPerformances = function(self) {
@@ -140,6 +140,6 @@ benchresultStepfun = function(self) {
   stepfun(x, y)
 }
 
-benchresultAuc = function(self) {
+benchresultThresholdAuc = function(self) {
   integrate(self$stepfun,0,1)$value
 }
