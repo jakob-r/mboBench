@@ -16,4 +16,5 @@ Other TerminationCriterion: \code{\link{TerminationCriterion}},
   \code{\link{TerminationIteration}},
   \code{\link{TerminationValue}}
 }
+\concept{TerminationCriterion}
 \keyword{datasets}
