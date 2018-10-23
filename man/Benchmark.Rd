@@ -14,4 +14,5 @@ Benchmark Class
 \seealso{
 Other Benchmark: \code{\link{BenchmarkExpensive}}
 }
+\concept{Benchmark}
 \keyword{datasets}

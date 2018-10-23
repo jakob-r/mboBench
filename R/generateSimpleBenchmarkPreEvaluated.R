@@ -5,9 +5,12 @@
 #'
 #' @param smoof.fun [\code{smoof_function}]\cr
 #'   Single objective smoof function.
+#' @param design [\code{data.frame}]\cr
+#'   The preevaluated design of the function.
+#'   The results have to be in the column "y"
 #' @return \code{\link{Benchmark}}
 #' @export
-generateSimpleBenchmark = function(smoof.fun) {
+generateSimpleBenchmarkPreEvaluated = function(smoof.fun, design) {
   old.seed = getRandomSeed()
   set.seed(1)
   on.exit({ .Random.seed <<- old.seed })
@@ -17,9 +20,12 @@ generateSimpleBenchmark = function(smoof.fun) {
   }
   d = getNumberOfParameters(smoof.fun)
   initial.design.n = 4 * d
-
-  random.design = generateRandomDesign(n = 500*d, par.set = getParamSet(smoof.fun))
-  ys = evalDesign(random.design, smoof.fun)[,1]
+  ps = getParamSet(smoof.fun)
+  par.ids = getParamIds(ps, repeated = TRUE, with.nr = TRUE)
+  assertDataFrame(design)
+  assertSubset(par.ids, colnames(design))
+  random.design = design[, par.ids, drop = FALSE]
+  ys = design$y
   assertNumeric(ys, any.missing = FALSE, len = nrow(random.design))
   
   res = generateThreasholds(smoof.fun, initial.design.n, ys)
@@ -28,7 +34,7 @@ generateSimpleBenchmark = function(smoof.fun) {
   termination.criterions = res$termination.criterions
   skew = res$skew
 
-  tags = c("simple.benchmark", getTags(smoof.fun))
+  tags = c("preevaluated.benchmark", getTags(smoof.fun))
 
   id = getID(smoof.fun)
   if (is.na(id)) {
@@ -36,7 +42,7 @@ generateSimpleBenchmark = function(smoof.fun) {
   }
 
   Benchmark$new(
-    id = paste0("simple.", id),
+    id = paste0("preevaluated.", id),
     smoof.fun = smoof.fun,
     termination.criterions = c(list(evals = termination.evals), termination.criterions),
     thresholds = thresholds,
@@ -46,13 +52,12 @@ generateSimpleBenchmark = function(smoof.fun) {
 }
 
 if (FALSE) {
-  smoof.fun = makeSphereFunction(2)
-  bench = generateSimpleBenchmark(smoof.fun)
-  bench$termination.criterions[[1]]$vars
-  library(mlrMBO)
-  ctrl = makeMBOControl()
-  ctrl = setMBOControlTermination(ctrl, more.termination.conds = bench$mlrmbo.termination.criterions)
-  run = mbo(fun = bench$smoof.fun, design = bench$getInitialDesign(1), control = ctrl)
-  run$y
-  bench$thresholds
+  library("omlTuneBenchR")
+  r = startOmlTuneServer()
+  learner_id = "classif.svm"
+  task_id = 3
+  smoof.fun = makeOmlBenchFunction(learner_id, task_id, include.extras = TRUE)
+  design = getAllRuns(learner.name = learner_id, task.id = task_id)
+  design = dplyr::rename(design, y = "auc")
+  benchmark = generateSimpleBenchmark(smoof.fun, design)
 }
