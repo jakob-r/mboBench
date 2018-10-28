@@ -38,7 +38,7 @@ generateSimpleBenchmarkPreEvaluated = function(smoof.fun, design) {
 
   id = getID(smoof.fun)
   if (is.na(id)) {
-    id = stri_replace_all_regex(str = smoof::getName(smoof.fun), pattern = "[^a-zA-Z1-9]", replacement = "_")
+    id = stri_replace_all_regex(str = smoof::getName(smoof.fun), pattern = "[^a-zA-Z0-9]", replacement = "_")
   }
 
   Benchmark$new(

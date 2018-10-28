@@ -51,7 +51,13 @@ aggregateBenchRepls = function(res.list, benchmark) {
   } else {
     res.dt[, y.dob := max(y), by = c("algo.name.config", "repl",  "dob")]
     res.dt[, y.dob.c := cummax(y.dob), by = c("algo.name.config", "repl")]
-    stop("Not implemented!")
+    res.dt[, y.th := cut(y.dob.c, c(-Inf, thresholds, Inf))]
+    if ("opt" %in% names(thresholds)) {
+      levels(res.dt$y.th) = c("<worse>", names(thresholds)[-1], "<NA>")
+    } else {
+      levels(res.dt$y.th) = c("<worse>", names(thresholds))
+    }
+    res.dt[, y.th := ordered(y.th, levels = levels(y.th))]
   }
 
   # Build data.frame when each threshold was passed

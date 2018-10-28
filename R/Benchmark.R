@@ -33,7 +33,7 @@ Benchmark = R6Class(
 
       self$expensive = assertFlag(expensive)
 
-      self$thresholds = assertNumeric(thresholds, any.missing = FALSE)
+      self$thresholds = assertNumeric(thresholds, any.missing = FALSE, unique = TRUE)
 
       assertTRUE(xor(is.null(initial.designs), is.null(initial.design.n)))
       private$initial.designs = assertList(initial.designs, "data.frame", null.ok = TRUE)
@@ -78,7 +78,7 @@ Benchmark = R6Class(
       return(y)
     },
 
-    getInitialDesignEvaluated = function(i, calculate = TRUE) {
+    getInitialDesignEvaluated = function(i) {
       if (isNoisy(self$smoof.fun)) {
         stop("Not supported for noisy functions.")
       }

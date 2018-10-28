@@ -17,6 +17,22 @@ generateThreasholds = function(smoof.fun, initial.design.n, ys) {
   # build threasholds from the worst (reaching what should be reached in the initial design) to the best reached y value in the given ys vector.
   thresholds = quantile(ys, seq(from = design.best.quantile, to = val.to, length.out = 10))
 
+  # it can happen that threasholds are duplicated
+  # however we are fixed to 10
+  # so if we have a duplicated value it means that the bin has to be increased
+  # so we increase it by 1/100 of the smallest bin
+  inds.dup = duplicated(thresholds)
+  if (any(inds.dup)) {
+    incr.step = min(diff(thresholds[!inds.dup])) / 100
+    if (shouldBeMinimized(smoof.fun)) {
+      thresholds[inds.dup] = thresholds[inds.dup] - incr.step  
+    } else {
+      thresholds[inds.dup] = thresholds[inds.dup] + incr.step
+    }  
+  }
+  
+  
+
   best.y.value = getGlobalOptimum(smoof.fun)$value
   if (!is.null(best.y.value)) {
     thresholds = c(thresholds, opt = getGlobalOptimum(smoof.fun)$value)
