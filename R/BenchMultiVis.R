@@ -37,8 +37,14 @@ BenchMultiVis = function(res.list, benchmarks) {
 
   # unify thresholds
   for (i in seq_len(nrow(res.all))) {
-    res.all$op.dt[[i]]$y.th = lvls_revalue(res.all$op.dt[[i]]$y.th, c(paste0(seq(0, 100, by = 10),"%"), "<NA>"))
-    res.all$thresholds.dt[[i]]$y.th = lvls_revalue(res.all$thresholds.dt[[i]]$y.th, c(paste0(seq(10, 100, by = 10),"%")))
+    new_levels = paste0(seq(0, 100, by = 10),"%")
+    if ("<NA>" == tail(levels(res.all$op.dt[[i]]$y.th), 1)) {
+      new_levels_2 = c(new_levels, "<NA>")
+    } else {
+      new_levels_2 = new_levels
+    }
+    res.all$op.dt[[i]]$y.th = lvls_revalue(res.all$op.dt[[i]]$y.th, new_levels_2)
+    res.all$thresholds.dt[[i]]$y.th = lvls_revalue(res.all$thresholds.dt[[i]]$y.th, tail(new_levels, -1))
   }
 
   # remove x columns
@@ -94,7 +100,9 @@ if (FALSE) {
   mydev()
   benchmarkA = generateSimpleBenchmark(makeBraninFunction())
   #benchmarkB = generateSimpleBenchmark(makeSwiler2014Function())
-  benchmarkB = generateSimpleBenchmark(makeRosenbrockFunction(7))
+  #funB = makeRosenbrockFunction(7)
+  funB = makeSingleObjectiveFunction(name = "test1", fn = function(x) x[[1]]^2 + sin(x[[2]]), par.set = makeNumericParamSet("x", 2, -3, 3))
+  benchmarkB = generateSimpleBenchmark(funB)
 
   bench.cmaes = function(benchmark, repl, design, sigma = 1.5, lambda = 40) {
     fun = smoof::addLoggingWrapper(benchmark$smoof.fun, logg.x = TRUE, logg.y = TRUE)
@@ -108,8 +116,8 @@ if (FALSE) {
         sigma = sigma,
         lambda = lambda,
         stop.ons =list(
-          cmaesr::stopOnMaxEvals(benchmark$termination.criterions$evals$vars$max.evals),
-          cmaesr::stopOnOptValue(benchmark$termination.criterions$termination.value$vars$best.y.value, tol = benchmark$termination.criterions$termination.value$vars$tol)
+          cmaesr::stopOnMaxEvals(benchmark$termination.criterions$evals$vars$max.evals)#,
+          #cmaesr::stopOnOptValue(benchmark$termination.criterions$termination.value$vars$best.y.value, tol = benchmark$termination.criterions$termination.value$vars$tol)
         )
       )
     )
