@@ -7,6 +7,7 @@
 #' @import R6
 #' @import stringi
 #' @import ggplot2
+#' @import forcats
 #' @importFrom purrr map partial map_chr map_dbl map_int
 #' @importFrom foreach foreach
 #' @importFrom stats runif quantile aggregate integrate median setNames stepfun

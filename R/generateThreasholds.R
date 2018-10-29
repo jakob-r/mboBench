@@ -11,7 +11,7 @@ generateThreasholds = function(smoof.fun, initial.design.n, ys) {
   }
 
   # get the best y value that is reached in the initial design in average
-  design.best.y = mean(aggregate(ys~(seq_along(ys)-1) %/% initial.design.n, FUN = minomax)[,2])
+  design.best.y = median(aggregate(ys~(seq_along(ys)-1) %/% initial.design.n, FUN = minomax)[,2])
   # what quantile does this represent?
   design.best.quantile = mean(ys<=design.best.y)
   # build threasholds from the worst (reaching what should be reached in the initial design) to the best reached y value in the given ys vector.
@@ -36,8 +36,6 @@ generateThreasholds = function(smoof.fun, initial.design.n, ys) {
     }  
   }
   
-  
-
   best.y.value = getGlobalOptimum(smoof.fun)$value
   if (!is.null(best.y.value)) {
     thresholds = c(thresholds, opt = getGlobalOptimum(smoof.fun)$value)

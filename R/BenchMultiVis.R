@@ -37,8 +37,8 @@ BenchMultiVis = function(res.list, benchmarks) {
 
   # unify thresholds
   for (i in seq_len(nrow(res.all))) {
-    levels(res.all$op.dt[[i]]$y.th) = c(paste0(seq(0, 100, by = 10),"%"), "<NA>")
-    levels(res.all$thresholds.dt[[i]]$y.th) = c(paste0(seq(10, 100, by = 10),"%"))
+    res.all$op.dt[[i]]$y.th = lvls_revalue(res.all$op.dt[[i]]$y.th, c(paste0(seq(0, 100, by = 10),"%"), "<NA>"))
+    res.all$thresholds.dt[[i]]$y.th = lvls_revalue(res.all$thresholds.dt[[i]]$y.th, c(paste0(seq(10, 100, by = 10),"%")))
   }
 
   # remove x columns

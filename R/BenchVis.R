@@ -43,9 +43,9 @@ aggregateBenchRepls = function(res.list, benchmark) {
     res.dt[, y.dob.c := cummin(y.dob), by = c("algo.name.config", "repl")]
     res.dt[, y.th := cut(y.dob.c, c(Inf, thresholds, -Inf))]
     if ("opt" %in% names(thresholds)) {
-      levels(res.dt$y.th) = c("<NA>", rev(names(thresholds))[-1], "<worse>")
+      res.dt$y.th = lvls_revalue(res.dt$y.th, c("<NA>", rev(names(thresholds))[-1], "<worse>"))
     } else {
-      levels(res.dt$y.th) = c(rev(names(thresholds)), "<worse>")
+      res.dt$y.th = lvls_revalue(res.dt$y.th, c(rev(names(thresholds)), "<worse>"))
     }
     res.dt[, y.th := ordered(y.th, levels = rev(levels(y.th)))]
   } else {
@@ -53,9 +53,9 @@ aggregateBenchRepls = function(res.list, benchmark) {
     res.dt[, y.dob.c := cummax(y.dob), by = c("algo.name.config", "repl")]
     res.dt[, y.th := cut(y.dob.c, c(-Inf, thresholds, Inf))]
     if ("opt" %in% names(thresholds)) {
-      levels(res.dt$y.th) = c("<worse>", names(thresholds)[-1], "<NA>")
+      res.dt$y.th = lvls_revalue(res.dt$y.th, c("<worse>", names(thresholds)[-1], "<NA>"))
     } else {
-      levels(res.dt$y.th) = c("<worse>", names(thresholds))
+      res.dt$y.th = lvls_revalue(res.dt$y.th, c("<worse>", names(thresholds)))
     }
     res.dt[, y.th := ordered(y.th, levels = levels(y.th))]
   }
