@@ -7,10 +7,9 @@
 #' @import R6
 #' @import stringi
 #' @import ggplot2
-#' @import purrr
+#' @importFrom purrr map partial map_chr map_dbl map_int
 #' @importFrom foreach foreach
-#' @importFrom stats quantile
-#' @importFrom stats runif
+#' @importFrom stats runif quantile aggregate integrate median setNames stepfun
 #' @importFrom digest sha1
 #' @importFrom methods getFunction
 

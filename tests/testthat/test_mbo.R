@@ -10,7 +10,7 @@ test_that("mbo benchmark works", {
   bench.res = lapply(1:2, function(i) {
     run = mbo(
       fun = benchmark$smoof.fun,
-      design = benchmark$getInitialDesignEvaluated(i, calculate = FALSE),
+      design = benchmark$getInitialDesignEvaluated(i),
       control = ctrl,
       learner = lrn)
     expect_equal(run$final.state, "term.feval")
