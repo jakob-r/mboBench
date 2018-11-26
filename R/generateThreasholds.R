@@ -28,12 +28,16 @@ generateThreasholds = function(smoof.fun, initial.design.n, ys) {
   if (any(inds.dup)) {
     dup.count = cumsum(inds.dup)
     dup.count = dup.count - cummax(dup.count * !inds.dup) #counts the duplicated values 0 for first appeareance, 1 for first duplicate etc.
-    incr.step = dup.count * min(diff(thresholds[!inds.dup])) / 100
+    incr.step = dup.count * max(min(diff(thresholds[!inds.dup])) / 100, 1e-15)
+    # browser()
     if (shouldBeMinimized(smoof.fun)) {
       thresholds = thresholds - incr.step  
     } else {
       thresholds = thresholds + incr.step
     }  
+    if (length(unique(sign(diff(res$thresholds)))) != 1) {
+      stop ("The differences between the thresholds are too small! I don't know what to do!")
+    }
   }
   
   best.y.value = getGlobalOptimum(smoof.fun)$value
