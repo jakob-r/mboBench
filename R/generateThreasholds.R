@@ -35,7 +35,7 @@ generateThreasholds = function(smoof.fun, initial.design.n, ys) {
     } else {
       thresholds = thresholds + incr.step
     }  
-    if (length(unique(sign(diff(nthresholds)))) != 1) {
+    if (length(unique(sign(diff(thresholds)))) != 1) {
       stop ("The differences between the thresholds are too small! I don't know what to do!")
     }
   }
