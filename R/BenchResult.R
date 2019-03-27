@@ -22,8 +22,8 @@ BenchResult = R6Class(
     benchmark.max.evals = NULL,
 
     # constructor
-    initialize = function(id = NULL, benchmark, algo.name = id, algo.params = NULL, op.dt = NULL, opt.path = NULL, values = NULL, repl = 1) {
-
+    initialize = function(id = NULL, benchmark, algo.name = id, algo.params = NULL, op.dt = NULL, opt.path = NULL, values = NULL, repl = 1L) {
+      repl = as.integer(repl)
       assertClass(benchmark, "Benchmark")
       assertCharacter(id, any.missing = FALSE, null.ok = TRUE)
       assertInt(repl)

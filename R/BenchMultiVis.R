@@ -92,8 +92,8 @@ BenchMultiVis = R6Class("BenchMultiVis",
 
     # public methods
     plot_opt_path_progress = function() {
-    # plot opt path progress
-      g1 = ggplot(op.dt, aes_string(x = "dob", y = "y.dob.c", group = "algo.name.config", color = "algo.name.config", fill = "algo.name.config"))
+      # plot opt path progress
+      g1 = ggplot(self$op.dt, aes_string(x = "dob", y = "y.dob.c", group = "algo.name.config", color = "algo.name.config", fill = "algo.name.config"))
       g1 = g1 + geom_point(size = 0.5, alpha = 0.2)
       g1 = g1 + stat_summary(fun.y = median, geom="line")
       g1 = g1 + stat_summary(fun.ymin = partial(quantile, probs = 0.1), geom="ribbon", fun.ymax = partial(quantile, probs = 0.9), alpha = 0.1, color = NA)
@@ -101,12 +101,15 @@ BenchMultiVis = R6Class("BenchMultiVis",
       g1
     },
     plot_threshold_progress = function() {
-    # plot threshold progress
-      g2 = ggplot(thresholds.dt, aes(x = y.th, y = nev.progress, fill = algo.name.config))
+      # plot threshold progress
+      g2 = ggplot(self$thresholds.dt, aes(x = y.th, y = nev.progress, fill = algo.name.config))
       g2 = g2 + geom_boxplot()
       g2 = g2 + geom_hline(yintercept = 1)
-      g2 = g2 + coord_cartesian(ylim=c(min(thresholds.dt$nev.progress), 1))
+      g2 = g2 + coord_cartesian(ylim=c(min(self$thresholds.dt$nev.progress), 1))
       g2
+    },
+    table_aggregated_for_thr = function() {
+      
     }
   )
 )
