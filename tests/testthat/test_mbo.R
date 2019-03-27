@@ -23,5 +23,8 @@ test_that("mbo benchmark works", {
       repl = i
     )
   })
-  BenchReplVis(bench.res, benchmark)
+  brv = BenchReplVis$new(bench.res, benchmark)
+  brv$plot_opt_path_progress()
+  brv$plot_threshold_progress()
+
 })

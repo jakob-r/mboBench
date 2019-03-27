@@ -30,7 +30,7 @@ aggregateBenchRepls = function(res.list, benchmark) {
   dob = NULL #haha hack
   res.dt[is.null(dob), dob := seq_len(.N), by = c("repl", "algo.name", "algo.name.post")]
 
-  # add nev (noumber of evaluation counter) if missing
+  # add nev (number of evaluation counter) if missing
   nev = NULL #again hack
   res.dt[is.null(nev), nev := seq_len(.N), by = c("repl", "algo.name", "algo.name.post")]
 
@@ -38,9 +38,16 @@ aggregateBenchRepls = function(res.list, benchmark) {
 
   thresholds = benchmark$thresholds
   if (benchmark$minimize) {
-    res.dt[, y.dob := min(y), by = c("algo.name.config", "repl", "dob")]
-    setkeyv(res.dt, c("algo.name.config", "repl", "dob"))
-    res.dt[, y.dob.c := cummin(y.dob), by = c("algo.name.config", "repl")]
+    mima = min
+    cumima = cummin
+  } else {
+    mima = max
+    cumima = cummax
+  }
+  res.dt[, y.dob := mima(y), by = c("algo.name.config", "repl", "dob")]
+  setkeyv(res.dt, c("algo.name.config", "repl", "dob"))
+  res.dt[, y.dob.c := cumima(y.dob), by = c("algo.name.config", "repl")]
+  if (benchmark$minimize) {
     res.dt[, y.th := cut(y.dob.c, c(Inf, thresholds, -Inf))]
     if ("opt" %in% names(thresholds)) {
       res.dt$y.th = lvls_revalue(res.dt$y.th, c("<NA>", rev(names(thresholds))[-1], "<worse>"))
@@ -49,8 +56,6 @@ aggregateBenchRepls = function(res.list, benchmark) {
     }
     res.dt[, y.th := ordered(y.th, levels = rev(levels(y.th)))]
   } else {
-    res.dt[, y.dob := max(y), by = c("algo.name.config", "repl",  "dob")]
-    res.dt[, y.dob.c := cummax(y.dob), by = c("algo.name.config", "repl")]
     res.dt[, y.th := cut(y.dob.c, c(-Inf, thresholds, Inf))]
     if ("opt" %in% names(thresholds)) {
       res.dt$y.th = lvls_revalue(res.dt$y.th, c("<worse>", names(thresholds)[-1], "<NA>"))
@@ -79,7 +84,7 @@ aggregateBenchRepls = function(res.list, benchmark) {
   res.dt2[is.na(dob), dob := as.integer(ceiling(max(res.dt$dob) * 2))]
   res.dt2[is.na(nev), nev := as.integer(ceiling(max(res.dt$nev) * 2))]
 
-  res.dt2 = res.dt2[, .SD[dob == max(dob),], by = c("algo.name.config", "repl", "y.th", "algo.name", "algo.name.post", stringi::stri_subset(str = colnames(res.dt2), regex = "algo\\.param"))]
+  res.dt2 = res.dt2[, .SD[dob == min(dob),][1,], by = c("algo.name.config", "repl", "y.th", "algo.name", "algo.name.post", stringi::stri_subset(str = colnames(res.dt2), regex = "algo\\.param"))]
 
   list(op.dt = res.dt, thresholds.dt = res.dt2)
 }
