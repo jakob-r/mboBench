@@ -57,9 +57,21 @@ BenchMultiVis = function(res.list, benchmarks) {
   }
 
   # put bench id in sub tables
-  res.all$op.dt = Map(cbind, res.all$op.dt, bench.id = res.all$bench.id)
-  res.all$thresholds.dt = Map(cbind, res.all$thresholds.dt, bench.id = res.all$bench.id)
-
+  if (seq_len(nrow(res.all)) == 1) { #FIXME: This is a workaraound for a data.table bug
+    op = copy(res.all$op.dt[[1]])
+    op[, bench.id := res.all$bench.id[1]]
+    res.all$op.dt[[1]] = list(op)
+    t.dt = copy(res.all$thresholds.dt[[1]])
+    t.dt[, bench.id := res.all$bench.id[1]]
+    res.all$thresholds.dt[[1]] = list(t.dt)
+  } else {
+    for (i in seq_len(nrow(res.all))) {
+      res.all$op.dt = Map(cbind, res.all$op.dt, bench.id = res.all$bench.id)
+      res.all$thresholds.dt = Map(cbind, res.all$thresholds.dt, bench.id = res.all$bench.id)
+    } 
+  }
+  
+  
   # merge to one dt
   op.dt = merge(bench.tab, rbindlist(res.all$op.dt, fill = TRUE))
   thresholds.dt = merge(bench.tab, rbindlist(res.all$thresholds.dt, fill = TRUE))
