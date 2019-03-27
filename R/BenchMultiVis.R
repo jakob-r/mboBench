@@ -46,7 +46,7 @@ BenchMultiVis = function(res.list, benchmarks) {
       new_levels_2 = new_levels
     }
     res.all$op.dt[[i]][, y.th := lvls_revalue(res.all$op.dt[[i]]$y.th, new_levels_2)]
-    res.all$thresholds.dt[[i]][, y.th = lvls_revalue(res.all$thresholds.dt[[i]]$y.th, tail(new_levels, -1))]
+    res.all$thresholds.dt[[i]][, y.th := lvls_revalue(res.all$thresholds.dt[[i]]$y.th, tail(new_levels, -1))]
   }
 
   # remove x columns
