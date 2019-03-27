@@ -10,6 +10,8 @@
 #' @return list of ggplot objects
 #' @export
 BenchReplVis = function(res.list, benchmark) {
+  assertList(res.list, types = "BenchResult", any.missing = FALSE)
+  assertR6(benchmark, classes = "Benchmark")
   res = aggregateBenchRepls(res.list, benchmark)
   g1 = ggplot(res$op.dt, aes_string(x = "dob", y = "y.dob.c", group = "algo.name.config", color = "algo.name.config", fill = "algo.name.config"))
   g1 = g1 + geom_point(size = 0.5, alpha = 0.2)

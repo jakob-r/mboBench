@@ -11,6 +11,8 @@
 #' @return list of ggplots and tables
 #' @export  
 BenchMultiVis = function(res.list, benchmarks) {
+  assertList(res.list, types = "BenchResult", any.missing = FALSE)
+  assertList(benchmarks, types = "Benchmark", any.missing = FALSE)
   bench.tab = data.table(
     bench.hash = map_chr(benchmarks, "hash"),
     bench.id = map_chr(benchmarks, "id"),
@@ -43,8 +45,8 @@ BenchMultiVis = function(res.list, benchmarks) {
     } else {
       new_levels_2 = new_levels
     }
-    res.all$op.dt[[i]]$y.th = lvls_revalue(res.all$op.dt[[i]]$y.th, new_levels_2)
-    res.all$thresholds.dt[[i]]$y.th = lvls_revalue(res.all$thresholds.dt[[i]]$y.th, tail(new_levels, -1))
+    res.all$op.dt[[i]][, y.th := lvls_revalue(res.all$op.dt[[i]]$y.th, new_levels_2)]
+    res.all$thresholds.dt[[i]][, y.th = lvls_revalue(res.all$thresholds.dt[[i]]$y.th, tail(new_levels, -1))]
   }
 
   # remove x columns
