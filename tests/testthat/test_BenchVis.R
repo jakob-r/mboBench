@@ -23,13 +23,17 @@ test_that("BenchReplVis and BenchMultiVis works", {
   executor1 = BenchExecutor$new(id = "random", benchFun1)
   executor2 = BenchExecutor$new(id = "lhs", benchFun2)
 
-  repls.bench1 = replicate(10, {
-    executor1$execute(benchmark1)
-  })
-  repls.bench2 = replicate(10, {
-    executor2$execute(benchmark2)
-  })
-  brv = BenchReplVis$new(res.list = repls.bench1, benchmark = benchmark1)
+  repls.bench11 = lapply(1:10, executor1$execute, benchmark = benchmark1)
+  repls.bench12 = lapply(1:10, executor1$execute, benchmark = benchmark2)
+  repls.bench21 = lapply(1:10, executor2$execute, benchmark = benchmark1)
+  repls.bench22 = lapply(1:10, executor2$execute, benchmark = benchmark2)
+  
+  brv = BenchReplVis$new(res.list = repls.bench11, benchmark = benchmark1)
   brv$plot_opt_path_progress()
   brv$plot_threshold_progress()
+
+  bmv = BenchMultiVis$new(res.list = c(repls.bench11, repls.bench12, repls.bench21, repls.bench22), benchmarks = c(benchmark1, benchmark2))
+  bmv$plot_threshold_progress()
+  bmv$plot_opt_path_progress()
+
 })
